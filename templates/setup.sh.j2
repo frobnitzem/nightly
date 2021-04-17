@@ -1,0 +1,26 @@
+#!/bin/bash
+
+set -e
+
+echo "Running setup.sh"
+CWD="$PWD"
+sys="{{ problem }}"
+source env.sh
+
+# locate system template run dir
+for pre in picongpu/share/picongpu/{examples,benchmarks,tests}; do
+  if [ -d "$pre/$sys" ]; then
+    sys="$pre/$sys"
+    break
+  fi
+done
+
+if [ ! -d "$sys" ]; then
+    {# TODO: use "phash" to pull from hzdr repo when required sys might be there -#}
+
+    echo "Unable to find system directory $sys."
+    exit 1
+fi
+
+pic-create $sys sys
+

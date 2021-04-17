@@ -1,0 +1,30 @@
+#!/bin/bash
+
+set -e
+echo "Started run.sh"
+
+{% set nprocs = procs[0]*procs[1]*procs[2] %}
+{% set nnodes = nprocs // 4 %}
+
+cat >batch.sh <<.
+#!/bin/bash
+#SBATCH --partition=amdMI100
+#SBATCH --time=00:30:00
+#SBATCH --job-name={{ problem }}
+#SBATCH --nodes={{ nnodes }}
+#SBATCH --ntasks={{ nprocs }}
+#SBATCH --cpus-per-task=2
+#SBATCH --mem=0
+#SBATCH --gres=gpu:4
+#SBATCH --open-mode=append
+#SBATCH -o stdout
+#SBATCH -e stderr
+
+source env.sh
+cd sys
+srun -n {{ nprocs }} -N {{ nnodes }} --gres=gpu:4 --cpus-per-task=2 --exclusive \
+     bin/picongpu --mpiDirect -g {{ " ".join(grid) }} -d {{ " ".join(procs) }} -s 1000 \
+     --periodic 1 1 1 --percent 1 --versionOnce --e_macroParticlesCount.period 50
+.
+
+bsub batch.sh

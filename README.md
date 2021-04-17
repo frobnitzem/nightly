@@ -63,7 +63,7 @@ these include grid sizes for problems:
 
 * runID
   * buildID tuple
-  * mesh = mesh grid size (x,y,z)
+  * grid = global grid size (x,y,z)
   * procs = processor grid size (x,y,z)
 
 ---
@@ -90,59 +90,98 @@ rendering of the jinja2 templates in `templates/*.j2`.
 More details are provided below.
 
 
-## Config description files
+## Build Process
 
-The configuration process for each build has 5 steps:
+The build takes place in `build_dir` = `$WORK/buildID`.
+All build scripts are launched from this directory.
 
-1. mkdir/cd to `$WORK/buildID` and run `templates/clone.sh <git repo dir> <commit>`
+Both `build_dir` and `buildID` are available to the templates
+in case they need absolute paths.  No files should be changed
+outside this directory, however.
+
+
+The `build.py` script carries out these steps, aborting the process on error:
+
+1. mkdir `build_dir` and run `templates/clone.sh <git repo dir> <commit>`
    - this script should clone picongpu at the specified commit into `picongpu`
-   - its output is captured to clone.log
+   - its output is captured to `clone.log`
    - nonzero return aborts the build
 
-2. cd to `$WORK/buildID` and run `templates/setup.sh <unpacked buildID tuple>`
+2. create shell scripts in `build_dir`
+   - `templates/<machine>.env.sh.j2 % buildID tuple` ~> `env.sh`
+     * this is for you to re-use to setup the compile / run shell environment
+   - `templates/setup.sh.j2 % buildID tuple` ~> `setup.sh`
+   - `templates/build.sh.j2 % buildID tuple` ~> `build.sh`
+   - This step has no separate logfile. Only `status.txt` records its completion.
+
+3. execute `./setup.sh`
    - this script should copy-in the physics problem at the required commit hash
-   - its output is captured to setup.log
+   - its output is captured to `setup.log`
    - nonzero return aborts the build
 
-3. create the `$WORK/buildID/env.sh` file to set compile / run shell environment
-   and the `$WORK/buildID/build.sh` file that will run the build
-   - the first is generated from `templates/<machine>.env.sh.j2 % buildID tuple`
-   - the second is generated from `templates/build.sh.j2 % buildID tuple`
-   - no separate logfile, only `status.txt` records completion
-
-4. cd to `$WORK/buildID` and execute `./build.sh` (no args)
+4. execute `./build.sh`
    - this script should do:
      * source env.sh
      * run pic-create
      * mkdir + cd to `build`
      * execute cmake
-  - output is captured by build.log
+  - output is captured by `build.log`
   - nonzero return code indicates an error
 
 5. report success / failure to `$WORK/builds.csv`
 
 
-The run process after successful builds has the following steps:
+## Run Process
 
-1. manually create the working directory as `$WORK/buildID/runID/`
+Runs take place in `run_dir` = `$WORK/buildID/runID`.
+All run scripts are launched from this directory.
 
-2. create the job submit script and submit to batch queue
-   - `templates/submit.sh.j2 % runID tuple`
-   - this script is copied into `$WORK/buildID/runID/submit.sh`
-
-3. update the `status.txt` and `$WORK/runs.csv` file
+All the variables, `build_dir`, `run_dir`, `buildID`, and `runID`
+are available to the templates in case they need absolute paths.
+No files should be changed outside `run_dir`, however.
 
 
-# Output Documentation
+The `run.py` script carries out these steps, aborting the process on error:
 
-Running the testing system will use config options
-to generate input directories, runscripts, and jobs.
-It will then add this info to `started.csv` and
-launch those jobs.
+1. mkdir `run_dir` and create its shell scripts
+   - `templates/<machine>.run.sh.j2 % runID tuple` ~> `run.sh`
+     * this script should create a batch script and submit it to the queue
+   - `templates/results.sh.j2 % runID tuple` ~> `results.sh`
+     * This script is run later to check run results.
+     * This script may report extra information as a whitespace-delimited file, "results.txt".
+     * It should be idempotent, returning 99 if the run has not completed yet.
 
-The job itself updates `status.txt` in its own
-directory.  At any time, the `summary.sh` script
-can be run to update the final `completed.csv` file.
+2. execute `./run.sh`
+   - its output is captured to `run.log`
+   - nonzero return aborts the run
+
+3. report success / failure to `$WORK/runs.csv` file
+
+
+## Results Process
+
+The `results.py` program simply works through all run directories
+that are incomplete and executes their `results.sh` script
+(from within the `run_dir`).  As usual, script
+output is logged to `results.log`.
+
+It reports success / failure to `$WORK/results.csv` file.
+It also checks whether a `results.txt` file exists.
+If so, it treats it as a whitespace-separated list.
+It tokenizes the list, and appends it to the
+entry in `$WORK/results.csv`.
+
+Note that this only scans runs in the `runs.csv` file
+that are not already present (or are present, but
+marked incomplete).
+To mark a run incomplete, `results.sh` should return 99.
+
+
+# List of Output Files
+
+* `build.py` logs to `$WORK/builds.csv`
+* `run.py` logs to `$WORK/runs.csv`
+* `results.py` logs to `$WORK/results.csv`
 
 ## Output data
 
@@ -164,9 +203,9 @@ The outputs from each run are stored in several places:
 
 4. run information summary @ `$WORK/runs.csv`
 
-   - Schema: runID, buildID, date, runID tuple elements
+   - Schema: runID, date, runID tuple elements
 
 5. completed job information summary @ `$WORK/results.csv`
 
-   - runID, startup time, #steps, core run-time
+   - Schema: runID, date, results return code, data from results.txt
 

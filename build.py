@@ -9,12 +9,15 @@ class BuildEnv:
         self.names = names
 
         self.tpl = tpl
-        self.vals = dict( (n, t) for n,t in zip(self.names, tpl) )
-
         self.ID = derive( tpl )
-        self.vals['buildID'] = self.ID
-        self.build_dir = work_dir / self.vals['buildID']
+
+        self.build_dir = work_dir / self.ID
         self.log = self.build_dir / 'status.txt'
+
+        # values available for substitution in jinja2 templates
+        self.vals = dict( (n, t) for n,t in zip(self.names, tpl) )
+        self.vals['buildID'] = self.ID
+        self.vals['build_dir'] = self.build_dir
 
     @log_step
     def run(self):
@@ -23,33 +26,37 @@ class BuildEnv:
             self.log.unlink()
 
         if self.clone(): return 1
-        if self.setup(): return 2
-        if self.mkenv(): return 3
+        if self.mkenv(): return 2
+        if self.setup(): return 3
         if self.build(): return 4
 
         return 0
 
     @log_step
     def clone(self):
-        check_execute(self.build_dir/'clone.log',
+        return check_execute(
+                      self.build_dir/'clone.log',
                       R.cwd / 'templates' / 'clone.sh', self.repo, self.vals['commit'],
-                      cwd = str(self.build_dir))
-
-    @log_step
-    def setup(self):
-        check_execute(self.build_dir/'setup.log',
-                      R.cwd / 'templates' / 'setup.sh', *self.tpl,
                       cwd = str(self.build_dir))
 
     @log_step
     def mkenv(self):
         # Create env.sh and build.sh from templates
         R.render_file(f'{self.vals["machine"]}.env.sh.j2', self.vals, self.build_dir / 'env.sh')
+        R.render_file('setup.sh.j2', self.vals, self.build_dir / 'setup.sh')
         R.render_file('build.sh.j2', self.vals, self.build_dir / 'build.sh')
 
     @log_step
+    def setup(self):
+        return check_execute(
+                      self.build_dir/'setup.log',
+                      self.build_dir/'setup.sh',
+                      cwd = str(self.build_dir))
+
+    @log_step
     def build(self):
-        check_execute(self.build_dir/'build.log',
+        return check_execute(
+                      self.build_dir/'build.log',
                       self.build_dir/'build.sh',
                       cwd = str(self.build_dir))
 

@@ -3,6 +3,7 @@
 # by printing a neat markdown summary.
 
 from helpers import *
+import re
 
 def show_csv(fname):
     # print the CSV information in a markdown table
@@ -25,10 +26,23 @@ def show_csv(fname):
 
     return ans
 
-def show_status(fname):
-    with open(fname, 'r', encoding = 'utf-8', newline='') as f:
+def show_file(fname):
+    if not fname.exists():
+        return 1
+    print("```")
+    with open(fname, 'r', encoding = 'utf-8') as f:
+        print(f.read())
+    print("```")
+    return 0
+
+def show_status(base, fname):
+    fail = re.compile(r'(\w+) failed after')
+    with open(base / fname, 'r', encoding = 'utf-8', newline='') as f:
         for line in f:
             print("    - " + line)
+            m = fail.search(line)
+            if m is not None:
+                show_file(base / f"{m[1]}.log")
 
 def filter_fails(tbl):
     # Turn the dictionary back into a list of "failing" instances
@@ -51,14 +65,15 @@ def main(argv):
         print("\n# Failing Build Info\n")
         for b in builds:
             ID, date, ret = b[0], b[1], int(b[2])
-            print(f"  * {date}: {ID} returned {ret}")
-            show_status( work / b[0] / 'status.txt' )
+            print(f"  * {date}: {work/ID} returned {ret}")
+            show_status( work / ID , 'status.txt' )
 
     if len(runs) > 0:
         print("\n# Failing Run Info\n")
         for r in runs:
             ID, date, ret = r[0], r[1], int(r[2])
-            print(f"  * {date}: {ID} returned {ret}")
+            print(f"  * {date}: {work/ID} returned {ret}")
+            show_status( work / ID , 'status.txt' )
 
 if __name__=="__main__":
     import sys

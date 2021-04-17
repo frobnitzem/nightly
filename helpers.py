@@ -24,11 +24,11 @@ def check_execute(log, *args, **kws):
 #### jinja2 template rendering  cruft ####
 class Render:
     def __init__(self):
-        from jinja2 import Environment, FileSystemLoader
+        from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
         self.cwd = Path(__file__).resolve().parent
         file_loader = FileSystemLoader(self.cwd / 'templates')
-        self.env = Environment(loader=file_loader)
+        self.env = Environment(loader=file_loader, undefined=StrictUndefined)
 
     def render_file(self, template, vals, out):
         output = self.env \

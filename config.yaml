@@ -11,16 +11,23 @@ buildvars: ["compiler", "accel", "mpi", "problem", "phash"]
 
     # note: buildvars are always present as the first elements of runvars
     #       Inside run scripts, buildID and runID are also accessible.
-runvars: ["mesh", "procs"]
+runvars: ["grid", "procs"]
 
 machines:
   poplar:
     repo: "/home/users/coe62691/picongpu_main"
     configs:
-      - build: ['gcc/8.1.0', 'rocm/4.1.1', 'ompi/4.1.0/llvm/rocm/4.1.1', 'LaserWakeField', '']
-        run: [[256,256,256], [1,1,1]]
-      - build: ['gcc/9.2.0', 'rocm/4.1.1', 'ompi/4.1.0/llvm/rocm/4.1.1', 'LaserWakeField', '']
-        run: [[256,256,256], [1,1,1]]
+      - build: ['gcc/8.1.0', 'rocm/4.1.1', 'ompi/4.1.0/llvm/rocm/4.1.1', 'LaserWakefield', '']
+        runs: # note: {% if nprocs > 0 %} -m --windowMovePoint 0.9 {% endif %}
+          #- [[192, 1024, 12], [1,1,1]] # periodic 0 0 1
+          - [[128, 2048, 128], [1,4,1]]
+          - [[192, 2048, 160], [2,4,1]]
+          - [[192, 2048, 160], [2,2,2]]
+          - [[192, 1024, 192], [2,4,2]] # non-periodic
+          #- [[256, 1024, 256], [4,4,2]]
+     #- build: ['gcc/9.2.0', 'rocm/4.1.1', 'ompi/4.1.0/llvm/rocm/4.1.1', 'LaserWakefield', '']
+     #  runs:
+     #    - [[256,256,256], [1,1,1]]
 
 #- dirname: "v100"
 #  machine: "poplar-v100"
