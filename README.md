@@ -3,47 +3,98 @@
 This repository contains scripts to build and run picongpu
 on multiple systems in multiple test configurations.
 
-Results are appended to a csv file - one per trial configuration.
+Results are output in a custom work directory.
 
-To run these, use the self-documenting `run.py` program.
-If run without any arguments, it checks recent code commits
-and only runs what is needed.
+The top-level program for automated runs is `nightly.py`.
+It checks recent code commits and only runs what is needed.
+
+To adapt this to your own workflow, read this document,
+run these scripts on a test repository to check
+your understanding, then edit the scripts in `templates/` directory.
+
+
+# Dependencies
+
+* python packages:
+    - pyyaml
+    - jinja2
+
+* shell utilities:
+    - git
+
+
+# Programs Included
+
+  * `nightly.py <config.yaml> <machine name>`
+
+        Change to the "repo" dir for the given machine and execute `git fetch`.        
+        Then check for new commits and execute build and run steps as appropriate.
+
+  * `build.py <config.yaml> <build info>` Carry out a build and log the results.
+
+  * `run.py <config.yaml> <run info>` Carry out a run and log the results.
+
+  * `results.py <config.yaml>` Gather all results from completed runs.
+
+  * `sum.py <config.yaml>` Create a human-readable summary of the build and run results.
 
 
 # Configuration
 
-Configuration types are a combination of:
+Configurations are a 2-level tree with buildID and runID parts.
+
+The buildID is composed from all buildvars present in the `config.yaml`,
+plus `machine` and `commit` as two mandatory fields.
+In the example `config.yaml` shipping with this program,
+the variables are as follows:
 
 * buildID
   * machine = machine name
-  * compiler = compiler name
-  * rocm = rocm name
-  * mpi = mpi name
   * commit = picongpu commit hash
+  * compiler = compiler module name
+  * accel = accelerator module name (cuda or rocm)
+  * mpi = mpi module name
   * problem = physics problem name
   * phash = physics problem commit hash (for FOM)
 
+The runID is composed from all runvars present in the `config.yaml`,
+plus the information from the buildID.  In the example `config.yaml`,
+these include grid sizes for problems:
+
 * runID
   * buildID tuple
-  * mesh grid size
-  * processor grid size
+  * mesh = mesh grid size (x,y,z)
+  * procs = processor grid size (x,y,z)
+
+---
+**NOTE**
 
 Planned, future config. variables:
   * particle type
   * Maxwell solver type
 
+---
+
 The tuple of all information in a buildID is called the `buildID tuple`.
 It is inlined into the first several elements of the runID.
 
-The "build ID" and "run ID"-s are calculated by a hash of the buildID tuple.
-For details, see the `derive` function in the source code.
+When a string ID is needed, the "build ID" and "run ID"-s are hashed.
+For details, see the `derive` function in `helpers.py`.
+
+### So what?
+
+These configuration options present in `config.yaml` are
+are used to define file locations, and run information throughout
+the build/run process.  In particular, they are present during
+rendering of the jinja2 templates in `templates/*.j2`.
+More details are provided below.
 
 
 ## Config description files
 
 The configuration process for each build has 5 steps:
 
-1. mkdir/cd to `$WORK/buildID` and run `templates/clone.sh <commit>`
+1. mkdir/cd to `$WORK/buildID` and run `templates/clone.sh <git repo dir> <commit>`
    - this script should clone picongpu at the specified commit into `picongpu`
    - its output is captured to clone.log
    - nonzero return aborts the build

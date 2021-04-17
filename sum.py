@@ -2,8 +2,7 @@
 # Summarize the results of all builds and runs
 # by printing a neat markdown summary.
 
-from pathlib import Path
-import csv
+from helpers import *
 
 def show_csv(fname):
     # print the CSV information in a markdown table
@@ -38,8 +37,9 @@ def filter_fails(tbl):
     return tbl
 
 def main(argv):
-    assert len(argv) == 2, f"Usage: {argv[0]} <work dir>"
-    work = Path(argv[1]) #.resolve()
+    assert len(argv) == 2, f"Usage: {argv[0]} <config.yaml>"
+    config = Config(argv[1])
+    work = config.work
 
     print("# Builds\n")
     builds = filter_fails( show_csv(work / 'builds.csv') )

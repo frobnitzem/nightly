@@ -1,0 +1,26 @@
+# List of configuration options to build and run.
+
+# location of all output files
+work: "/home/users/coe62691/nightly_tests"
+
+# configs specific to our build/run of picongpu:
+
+    # note: machine and commit are always present as first 2 items in buildvars
+    #       Inside build scripts, buildID is also accessible.
+buildvars: ["compiler", "accel", "mpi", "problem", "phash"]
+
+    # note: buildvars are always present as the first elements of runvars
+    #       Inside run scripts, buildID and runID are also accessible.
+runvars: ["mesh", "procs"]
+
+machines:
+  poplar:
+    repo: "/home/users/coe62691/picongpu_main"
+    configs:
+      - build: ['gcc/8.1.0', 'rocm/4.1.1', 'ompi/4.1.0/llvm/rocm/4.1.1', 'LaserWakeField', '']
+        run: [[256,256,256], [1,1,1]]
+      - build: ['gcc/9.2.0', 'rocm/4.1.1', 'ompi/4.1.0/llvm/rocm/4.1.1', 'LaserWakeField', '']
+        run: [[256,256,256], [1,1,1]]
+
+#- dirname: "v100"
+#  machine: "poplar-v100"
