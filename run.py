@@ -79,6 +79,8 @@ class BuildEnv:
     @log_step
     def run(self):
         self.build_dir.mkdir(parents=True, exist_ok=True)
+        if self.log.exists():
+            self.log.unlink()
 
         if self.clone(): return 1
         if self.setup(): return 2
