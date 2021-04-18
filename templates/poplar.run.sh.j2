@@ -20,11 +20,14 @@ cat >batch.sh <<.
 #SBATCH -o stdout
 #SBATCH -e stderr
 
-source env.sh
-cd sys
+source ../env.sh
 srun -n {{ nprocs }} -N {{ nnodes }} --gres=gpu:4 --cpus-per-task=2 --exclusive \
-     bin/picongpu --mpiDirect -g {{ " ".join(grid) }} -d {{ " ".join(procs) }} -s 1000 \
-     --periodic 1 1 1 --percent 1 --versionOnce --e_macroParticlesCount.period 50
+     ../sys/bin/picongpu --mpiDirect -g {{grid[0]}} {{grid[1]}} {{grid[2]}} \
+                         -s 1000     -d {{procs[0]}} {{procs[1]}} {{procs[2]}} \
+                         --periodic 0 0 0 --percent 1
+                         --versionOnce --e_macroParticlesCount.period 50
+
+echo "COMPLETE"
 .
 
-bsub batch.sh
+sbatch batch.sh

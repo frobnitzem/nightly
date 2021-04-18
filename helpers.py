@@ -4,20 +4,21 @@ import os
 import subprocess
 import time
 from hashlib import blake2b
-from datetime import datetime as dt
+from datetime import datetime, timedelta
 import yaml
 
 def derive(tpl):
     h = blake2b(digest_size=10)
     for s in tpl:
-        h.update( s.encode('utf-8') )
+        h.update( str(s).encode('utf-8') )
     return h.hexdigest()
 
 def check_execute(log, *args, **kws):
-    if log is not None:
+    if log is None:
+        ret = bool(subprocess.call(args, **kws))
+    else:
         log = open(log, "wb")
-    ret = bool(subprocess.call(args, stdout=log, stderr=log, **kws))
-    if log is not None:
+        ret = bool(subprocess.call(args, stdout=log, stderr=log, **kws))
         log.close()
     return ret
 
@@ -41,7 +42,12 @@ class Render:
 R = Render()
 
 def stamp():
-    return dt.now().strftime("%Y-%m-%d %H:%M:%S")
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+def days_earlier(m):
+    # Print the date n days earlier than today
+    dt = timedelta(m)
+    return (datetime.now() - dt).strftime("%Y-%m-%d %H:%M:%S")
 
 def log_step(func):
     # Run the function with a timer, and catch all errors.
@@ -54,7 +60,9 @@ def log_step(func):
         try:
             ret = func(self, *args, **kws)
         except Exception as ex:
-            e = ex
+            #e = ex
+            import traceback
+            e = traceback.format_exc()
             ret = 100
         t1 = time.time()
         with open(self.log, 'a', encoding='utf-8') as f:
@@ -90,4 +98,37 @@ class Config:
             print("        expected runinfo = " + " ".join(self.runvars))
             return True
         return False
+
+class Status:
+    # Encapsulates `{builds,runs,result}.csv` files
+    # attr: columns = names of columns
+    # attr: tbl     = dictionary of { ID : last entry }
+    def __init__(self, fname):
+        if not fname.exists():
+            self.columns = []
+            self.tbl = {}
+            return
+
+        ans = {}
+        with open(fname, 'r', encoding = 'utf-8', newline='') as csvfile:
+            reader = csv.reader(csvfile, dialect='excel')
+            hdr = next(reader)
+            for row in reader:
+                ans[row[0]] = row
+
+        self.columns = hdr
+        self.tbl = ans
+
+    def show(self):
+        # print in markdown table format
+        #
+        if len(self.tbl) == 0:
+            print("*empty*")
+            return
+
+        hdr = self.columns
+        print( "| " + " | ".join(hdr) + " |" )
+        print( "| --- "*len(hdr) + "|" )
+        for k,row in self.tbl.items():
+            print("| " + " | ".join(row) + " |")
 

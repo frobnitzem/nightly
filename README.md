@@ -1,3 +1,20 @@
+----------------------------------------------------------------
+```
+
+            d8,            d8b                d8b           
+           `8P             ?88         d8P    88P           
+                            88b     d888888P.d88            
+  88bd88b   88b  d888b8b    888888b   ?88'   888   ?88   d8P 
+  88P' ?8b  88P,d8P' ?88    88P `?8b  88P    ?88   d88   88  
+ d88   88P d88  88b  ,88b  d88   88P.;88b     88b  ?8(  d88  
+d88'   88b.88'  `?88P'`88.d88'   88b  `?8b     88b,`?88P'?8b 
+                      )88                                )88
+                     ,88P                               ,d8P
+                 `?8888P                             `?888P'
+```
+----------------------------------------------------------------
+
+
 # PIConGPU nightly build and performance tests
 
 This repository contains scripts to build and run picongpu
@@ -136,8 +153,8 @@ The `build.py` script carries out these steps, aborting the process on error:
 Runs take place in `run_dir` = `$WORK/buildID/runID`.
 All run scripts are launched from this directory.
 
-All the variables, `build_dir`, `run_dir`, `buildID`, and `runID`
-are available to the templates in case they need absolute paths.
+Both, `run_dir` and `runID` are available to the templates
+in case they need absolute paths.
 No files should be changed outside `run_dir`, however.
 
 
@@ -146,42 +163,42 @@ The `run.py` script carries out these steps, aborting the process on error:
 1. mkdir `run_dir` and create its shell scripts
    - `templates/<machine>.run.sh.j2 % runID tuple` ~> `run.sh`
      * this script should create a batch script and submit it to the queue
-   - `templates/results.sh.j2 % runID tuple` ~> `results.sh`
+   - `templates/result.sh.j2 % runID tuple` ~> `result.sh`
      * This script is run later to check run results.
-     * This script may report extra information as a whitespace-delimited file, "results.txt".
+     * This script may report extra information as a whitespace-delimited file, "result.txt".
      * It should be idempotent, returning 99 if the run has not completed yet.
 
 2. execute `./run.sh`
    - its output is captured to `run.log`
    - nonzero return aborts the run
 
-3. report success / failure to `$WORK/runs.csv` file
+3. report success / failure to `$WORK/buildID/runs.csv` file
 
 
 ## Results Process
 
 The `results.py` program simply works through all run directories
-that are incomplete and executes their `results.sh` script
+that are incomplete and executes their `result.sh` script
 (from within the `run_dir`).  As usual, script
-output is logged to `results.log`.
+output is logged to `result.log`.
 
-It reports success / failure to `$WORK/results.csv` file.
-It also checks whether a `results.txt` file exists.
+It reports success / failure to `$WORK/buildID/results.csv` file.
+It also checks whether a `result.txt` file exists.
 If so, it treats it as a whitespace-separated list.
 It tokenizes the list, and appends it to the
-entry in `$WORK/results.csv`.
+entry in `results.csv`.
 
-Note that this only scans runs in the `runs.csv` file
+Note that this only scans runs in the `buildID/runs.csv` file
 that are not already present (or are present, but
 marked incomplete).
-To mark a run incomplete, `results.sh` should return 99.
+To mark a run incomplete, `result.sh` should return 99.
 
 
 # List of Output Files
 
 * `build.py` logs to `$WORK/builds.csv`
-* `run.py` logs to `$WORK/runs.csv`
-* `results.py` logs to `$WORK/results.csv`
+* `run.py` logs to `$WORK/buildID/runs.csv`
+* `results.py` logs to `$WORK/buildID/results.csv`
 
 ## Output data
 
@@ -201,7 +218,7 @@ The outputs from each run are stored in several places:
 
    - Schema: buildID, date, compile return code (0 if OK), buildID tuple elements
 
-4. run information summary @ `$WORK/runs.csv`
+4. run information summary @ `$WORK/buildID/runs.csv`
 
    - Schema: runID, date, runID tuple elements
 
