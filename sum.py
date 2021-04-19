@@ -36,7 +36,7 @@ def failed(b):
 def show_csv(fname):
     s = Status(fname)
     s.show()
-    return s.tbl
+    return s
 
 def main(argv):
     assert len(argv) == 2, f"Usage: {argv[0]} <config.yaml>"
@@ -59,8 +59,13 @@ def main(argv):
 
     for buildID,v in builds.items():
         print(f"\n## Build {buildID} {v}\n")
+
+        print(f"\n### Script submissions\n")
         runs = show_csv(work / buildID / 'runs.csv')
         fails = [v for k,v in runs.items() if failed(v)]
+        
+        print(f"\n### Run results\n")
+        Status(work / buildID / 'results.csv').show()
 
         if len(fails) > 0:
             print("\n## Failing Run Info\n")

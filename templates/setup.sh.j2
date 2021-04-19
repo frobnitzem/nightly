@@ -4,23 +4,21 @@ set -e
 
 echo "Running setup.sh"
 CWD="$PWD"
-sys="{{ problem }}"
+sys='{{ problem }}'
 source env.sh
 
+if ! [ -z {{phash}} ]; then
+  pushd $HOME/picongpu
+  git archive {{ phash }} | tar -x -C "$CWD/picongpu" share/picongpu/benchmarks/
+  popd
+fi
+
 # locate system template run dir
-for pre in picongpu/share/picongpu/{examples,benchmarks,tests}; do
-  if [ -d "$pre/$sys" ]; then
-    sys="$pre/$sys"
-    break
-  fi
-done
-
-if [ ! -d "$sys" ]; then
-    {# TODO: use "phash" to pull from hzdr repo when required sys might be there -#}
-
+dir=$(find picongpu/share/picongpu -type d -name $sys | head -n1)
+if [ -z $dir ]; then
     echo "Unable to find system directory $sys."
     exit 1
 fi
 
-pic-create $sys sys
+pic-create $dir sys
 

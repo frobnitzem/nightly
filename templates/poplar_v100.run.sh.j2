@@ -8,7 +8,7 @@ echo "Started run.sh"
 
 cat >batch.sh <<.
 #!/bin/bash
-#SBATCH --partition=amdMI100
+#SBATCH --partition=v100
 #SBATCH --time=00:30:00
 #SBATCH --job-name={{ problem }}
 #SBATCH --nodes={{ nnodes }}

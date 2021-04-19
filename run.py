@@ -12,6 +12,7 @@ class RunEnv(StepsEnv):
         # Create env.sh and build.sh from templates
         R.render_file(f'{self.vals["machine"]}.run.sh.j2', self.vals, self.dir / 'run.sh')
         R.render_file('result.sh.j2', self.vals, self.dir / 'result.sh')
+        return 0
 
     @log_step
     def runjob(self):

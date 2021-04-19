@@ -59,7 +59,7 @@ def main(argv):
             print(f"examining {buildID}")
 
             try:
-                ret = int( s.tbl[buildID][2] )
+                ret = int( s[buildID][2] )
                 print(f"Previous build result: {ret}")
                 if rebuild:
                     do_build = True
@@ -79,7 +79,7 @@ def main(argv):
             build_args[0] = 'run'
             for r in b['runs']:
                 runID = derive(build_args[2:])
-                if runID not in rs.tbl or rerun:
+                if runID not in rs or rerun:
                     run( build_args + r )
     
     return 0

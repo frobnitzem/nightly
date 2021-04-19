@@ -29,7 +29,7 @@ class StepsEnv:
 
         for i, step_name in enumerate(self.process):
             fn = getattr( self, step_name )
-            if fn():
+            if fn() != 0:
                 return (i+1)
 
         return 0

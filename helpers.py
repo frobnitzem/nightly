@@ -15,10 +15,10 @@ def derive(tpl):
 
 def check_execute(log, *args, **kws):
     if log is None:
-        ret = bool(subprocess.call(args, **kws))
+        ret = subprocess.call(args, **kws)
     else:
         log = open(log, "wb")
-        ret = bool(subprocess.call(args, stdout=log, stderr=log, **kws))
+        ret = subprocess.call(args, stdout=log, stderr=log, **kws)
         log.close()
     return ret
 
@@ -32,6 +32,7 @@ class Render:
         self.env = Environment(loader=file_loader, undefined=StrictUndefined)
 
     def render_file(self, template, vals, out):
+        # TODO: catch jinja2.exceptions.TemplateNotFound error?
         output = self.env \
                  . get_template(template) \
                  . render(vals)
@@ -64,6 +65,8 @@ def log_step(func):
             import traceback
             e = traceback.format_exc()
             ret = 100
+        assert isinstance(ret, int), "Error: func must return integer!"
+
         t1 = time.time()
         with open(self.log, 'a', encoding='utf-8') as f:
             if ret:
@@ -83,6 +86,7 @@ class Config:
         self.work = Path(cfg['work']).resolve()
         self.buildvars = ["machine", "commit"] + cfg['buildvars']
         self.runvars = self.buildvars + cfg['runvars']
+        self.resultvars = cfg['resultvars']
         self.machines = cfg['machines']
 
     def validate_buildinfo(self, args):
@@ -99,36 +103,45 @@ class Config:
             return True
         return False
 
-class Status:
+class Status(dict):
     # Encapsulates `{builds,runs,result}.csv` files
+    #   dictionary of { ID : last entry }
+    #
     # attr: columns = names of columns
-    # attr: tbl     = dictionary of { ID : last entry }
-    def __init__(self, fname):
-        if not fname.exists():
+    def __init__(self, fname=None):
+        dict.__init__(self)
+
+        if fname is None or not fname.exists():
             self.columns = []
-            self.tbl = {}
             return
 
-        ans = {}
         with open(fname, 'r', encoding = 'utf-8', newline='') as csvfile:
             reader = csv.reader(csvfile, dialect='excel')
             hdr = next(reader)
             for row in reader:
-                ans[row[0]] = row
+                self[row[0]] = row
 
         self.columns = hdr
-        self.tbl = ans
 
     def show(self):
         # print in markdown table format
         #
-        if len(self.tbl) == 0:
+        if len(self) == 0:
             print("*empty*")
             return
 
         hdr = self.columns
         print( "| " + " | ".join(hdr) + " |" )
         print( "| --- "*len(hdr) + "|" )
-        for k,row in self.tbl.items():
+        for k,row in self.items():
             print("| " + " | ".join(row) + " |")
+
+    def write(self, fname, mode='a'):
+        with open(fname, mode, encoding='utf-8') as f:
+            sz = f.tell()
+            writer = csv.writer(f, dialect='excel')
+            if sz == 0:
+                writer.writerow(self.columns)
+            for k,v in self.items():
+                writer.writerow(v)
 

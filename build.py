@@ -20,6 +20,7 @@ class BuildEnv(StepsEnv):
         R.render_file(f'{self.vals["machine"]}.env.sh.j2', self.vals, self.dir / 'env.sh')
         R.render_file('setup.sh.j2', self.vals, self.dir / 'setup.sh')
         R.render_file('build.sh.j2', self.vals, self.dir / 'build.sh')
+        return 0
 
     @log_step
     def setup(self):

@@ -80,8 +80,9 @@ these include grid sizes for problems:
 
 * runID
   * buildID tuple
-  * grid = global grid size (x,y,z)
-  * procs = processor grid size (x,y,z)
+  * nx, ny, nz = processor grid size (x, y, z)
+  * grid = global grid size "x y z"
+  * periodic = 0/1 flags indicating periodicity "x y z"
 
 ---
 **NOTE**
@@ -165,7 +166,7 @@ The `run.py` script carries out these steps, aborting the process on error:
      * this script should create a batch script and submit it to the queue
    - `templates/result.sh.j2 % runID tuple` ~> `result.sh`
      * This script is run later to check run results.
-     * This script may report extra information as a whitespace-delimited file, "result.txt".
+     * This script may report extra information as a single-line, comma-delimited file, "result.txt".
      * It should be idempotent, returning 99 if the run has not completed yet.
 
 2. execute `./run.sh`
@@ -220,9 +221,9 @@ The outputs from each run are stored in several places:
 
 4. run information summary @ `$WORK/buildID/runs.csv`
 
-   - Schema: runID, date, runID tuple elements
+   - Schema: runID, date, run return code, runID tuple elements
 
 5. completed job information summary @ `$WORK/results.csv`
 
-   - Schema: runID, date, results return code, data from results.txt
+   - Schema: runID, date, results return code, resultvars (gathered from results.txt)
 
