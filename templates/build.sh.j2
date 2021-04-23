@@ -9,9 +9,9 @@ source env.sh
 mkdir -p build
 cd build
 
-#-DCMAKE_BUILD_TYPE=Debug
 cmake -DCMAKE_INSTALL_PREFIX="$CWD/sys" \
       -DPIC_EXTENSION_PATH="$CWD/sys" \
+      -DCMAKE_BUILD_TYPE=RelWithDebInfo \
 {%- if "rocm" in accel %}
       -DALPAKA_ACC_GPU_HIP_ENABLE=ON \
       -DALPAKA_ACC_GPU_HIP_ONLY_MODE=ON \

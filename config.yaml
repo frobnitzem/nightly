@@ -13,7 +13,7 @@ buildvars: ["compiler", "accel", "mpi", "problem", "phash"]
     #       Inside run scripts, buildID and runID are also accessible.
 runvars: ["nx", "ny", "nz", "grid", "periodic"]
 
-resultvars: ["setup", "run"]
+resultvars: ["simulation", "total"]
 
 machines:
   poplar:
@@ -65,20 +65,20 @@ machines:
   summit:
     repo: "../picongpu_main"
     configs:
-      - build: ['gcc/8.1.1', 'cuda/10.2.1', 'spectrum-mpi/', 'LaserWakefield', '']
+      - build: ['gcc/8.1.1', 'cuda/10.1.243', 'spectrum-mpi/10.3.1.2-20200121', 'LaserWakefield', '']
         runs: # note: {% if nprocs > 0 %} -m --windowMovePoint 0.9 {% endif %}
           - [1, 1, 1, "192 1024 12", "0 0 1"]
           - [1, 4, 1, "128 2048 128", "0 0 0"]
-          - [2, 4, 1, "192 2048 160", "0 0 0"]
+          #- [2, 4, 1, "192 2048 160", "0 0 0"]
           #- [2, 2, 2, "192 2048 160", "0 0 0"]
           #- [2, 4, 2, "192 1024 192", "0 0 0"]
           #- [4, 4, 2, "256 1024 256", "0 0 0"]
-      - build: ['rocm/4.1.1', 'rocm/4.1.1', 'ompi/4.1.0/llvm/rocm/4.1.1', 'SPEC', '']
+      - build: ['gcc/8.1.1', 'cuda/10.1.243', 'spectrum-mpi/10.3.1.2-20200121', 'SPEC', '']
         runs:
           - [1, 1, 1, "128 128 128", "1 1 1"]
           - [2, 2, 1, "256 256 256", "1 1 1"]
-          - [2, 4, 2, "256 256 256", "1 1 1"]
-      - build: ['rocm/4.1.1', 'rocm/4.1.1', 'ompi/4.1.0/llvm/rocm/4.1.1', 'TWEAC', '2f2e2374']
+          #- [2, 4, 2, "256 256 256", "1 1 1"]
+      - build: ['gcc/8.1.1', 'cuda/10.1.243', 'spectrum-mpi/10.3.1.2-20200121', 'TWEAK*run', '2f2e2374']
         runs:
           - [1, 3, 2,  "240   816  448", "1 1 1"]
           - [3, 9, 6,  "720  2448 1344", "1 1 1"]

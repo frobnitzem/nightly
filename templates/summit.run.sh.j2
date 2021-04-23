@@ -1,0 +1,32 @@
+#!/bin/bash
+
+set -e
+source ../env.sh
+
+echo "Started run.sh"
+
+{% set nprocs = nx*ny*nz %}
+{% set nnodes = (nprocs+5) // 6 %}
+
+cat >batch.lsf <<.
+#!/bin/bash
+#BSUB -q batch
+#BSUB -W 00:30
+#BSUB -J {{ problem }}
+#BSUB -nnodes {{ nnodes }}
+#BSUB -alloc_flags smt4
+#BSUB -P $proj
+#BSUB -o stdout
+#BSUB -e stderr
+
+echo "Started job on \$LSB_HOSTS"
+
+jsrun -n {{ nprocs }} -a1 -c7 -g1 -bpacked:7 --smpiargs="-gpu" \
+     ../sys/bin/picongpu -d {{nx}} {{ny}} {{nz}} -g {{grid}} --periodic {{periodic}} \
+                         --mpiDirect -s 1000 --percent 1 \
+                         --versionOnce --e_macroParticlesCount.period 50
+
+echo "COMPLETE"
+.
+
+bsub batch.lsf
