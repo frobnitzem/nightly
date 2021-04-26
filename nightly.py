@@ -16,14 +16,18 @@ def latest(repo):
     return [ lines.decode('utf-8').strip() ]
 
 def main(argv):
+    pull = True
     rebuild = False
     rerun  = False
     commit = None
     while len(argv) > 3:
-        if argv[1] == '--rebuild':
+        if argv[1] == '--skip':
+            pull = False
+            del argv[1]
+        elif argv[1] == '--rebuild':
             rebuild = True
             del argv[1]
-        if argv[1] == '--rerun':
+        elif argv[1] == '--rerun':
             rerun = True
             del argv[1]
         elif argv[1] == '-c':
@@ -31,7 +35,7 @@ def main(argv):
             del argv[1:3]
         else:
             break
-    assert len(argv) == 3, f"Usage: {argv[0]} [--rebuild] [--rerun] [-c commit] <config.yaml> <machine>"
+    assert len(argv) == 3, f"Usage: {argv[0]} [--skip] [--rebuild] [--rerun] [-c commit] <config.yaml> <machine>"
 
     cfg = Config(argv[1])
     machine = argv[2]
@@ -40,8 +44,8 @@ def main(argv):
     repo = Path(info['repo']).resolve()
     assert (repo/'.git').is_dir(), f"{repo} is not a git repository."
 
-    if subprocess.call(["git", "fetch"], cwd=repo):
-        print(f"Error executing git fetch in {repo}")
+    if pull and subprocess.call(["git", "pull"], cwd=repo):
+        print(f"Error executing git pull in {repo}")
         return 1
 
     if commit is None:
