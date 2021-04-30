@@ -13,7 +13,7 @@ buildvars: ["compiler", "accel", "mpi", "problem", "phash"]
     #       Inside run scripts, buildID and runID are also accessible.
 runvars: ["nx", "ny", "nz", "grid", "periodic"]
 
-resultvars: ["simulation", "total"]
+resultvars: ["init", "simulation", "total"]
 
 machines:
   poplar:

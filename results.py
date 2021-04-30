@@ -15,9 +15,9 @@ def get_result(rundir, ninfo):
         return ret, info
 
     with open(z, 'r', encoding='utf-8') as f:
+        info = []
         for line in f:
-            info = line[:-1].split(',')
-            break
+            info.append(line[:-1])
     if len(info) != ninfo:
         print(f"Invalid info present in {rundir/'result.txt'} -- expected {ninfo} elements.")
         info = ['']*ninfo

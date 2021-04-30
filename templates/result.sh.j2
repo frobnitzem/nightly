@@ -6,11 +6,7 @@
 
 if grep -q 'COMPLETE' stdout; then
     # capture extra information about the result
-
-    t1=$(sed -n -e 's/^calculation  *simulation time:.*= \([0-9]*\) sec/\1/p' stdout)
-    t2=$(sed -n -e 's/^full  *simulation time:.*= \([0-9]*\) sec/\1/p' stdout)
-    echo "$t1,$t2" >result.txt
-
+    awk '/time:.*sec/ {print $(NF-1)}' stdout >result.txt
     exit 0
 fi
 

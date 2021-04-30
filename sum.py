@@ -56,6 +56,7 @@ def main(argv):
             show_status( work / ID , 'status.txt' )
 
     print("\n# Runs")
+    all_results = None
 
     for buildID,v in builds.items():
         print(f"\n## Build {buildID} {v}\n")
@@ -63,9 +64,14 @@ def main(argv):
         print(f"\n### Script submissions\n")
         runs = show_csv(work / buildID / 'runs.csv')
         fails = [v for k,v in runs.items() if failed(v)]
-        
+
         print(f"\n### Run results\n")
-        Status(work / buildID / 'results.csv').show()
+        results = Status(work / buildID / 'results.csv')
+        r = runs.join(results)
+        if all_results is None:
+            all_results = r
+        else:
+            all_results.update(r)
 
         if len(fails) > 0:
             print("\n## Failing Run Info\n")
@@ -73,6 +79,10 @@ def main(argv):
                 ID, date, ret = r[0], r[1], int(r[2])
                 print(f"  * {date}: {work/buildID/ID} returned {ret}")
                 show_status( work / buildID / ID , 'status.txt' )
+
+    if all_results is not None:
+        print("\n# Result Summary\n")
+        all_results.show()
 
 if __name__=="__main__":
     import sys

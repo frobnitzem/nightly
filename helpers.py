@@ -123,6 +123,25 @@ class Status(dict):
 
         self.columns = hdr
 
+    def join(self, other, both=False):
+        # Left join.
+        # if both == True, do an inner join (removing rows with no key in `other')
+        # return a new table with information from both tables.
+        # the keys must be the same.
+        # columns from self are on the left
+        # the first column from other is removed
+        #
+        s = Status()
+        s.columns = self.columns + other.columns[1:]
+        f = ['']*(len(other.columns)-1) # filler for empty rhs
+        for k, v in self.items():
+            if k not in other:
+                if not both:
+                    s[k] = v + f
+            else:
+                s[k] = v + other[k][1:]
+        return s
+
     def show(self):
         # print in markdown table format
         #

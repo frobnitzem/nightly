@@ -166,7 +166,9 @@ The `run.py` script carries out these steps, aborting the process on error:
      * this script should create a batch script and submit it to the queue
    - `templates/result.sh.j2 % runID tuple` ~> `result.sh`
      * This script is run later to check run results.
-     * This script may report extra information as a single-line, comma-delimited file, "result.txt".
+     * This script may report extra information in a file, "result.txt"
+       - each line of the file becomes a record in `results.csv`
+       - the results header (i.e. record labels) come from config.yaml's `resultvars`
      * It should be idempotent, returning 99 if the run has not completed yet.
 
 2. execute `./run.sh`
@@ -185,9 +187,8 @@ output is logged to `result.log`.
 
 It reports success / failure to `$WORK/buildID/results.csv` file.
 It also checks whether a `result.txt` file exists.
-If so, it treats it as a whitespace-separated list.
-It tokenizes the list, and appends it to the
-entry in `results.csv`.
+If so, it treats it as a newline-delimited list.
+It tokenizes the list, and appends it to the entry in `results.csv`.
 
 Note that this only scans runs in the `buildID/runs.csv` file
 that are not already present (or are present, but
