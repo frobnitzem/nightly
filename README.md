@@ -55,6 +55,8 @@ your understanding, then edit the scripts in `templates/` directory.
 
   * `sum.py <config.yaml>` Create a human-readable summary of the build and run results.
 
+  * `clean.py <config.yaml> <ID>` Delete a build or run-ID.
+    Note: This will delete the directory with the selected ID name too.
 
 # Configuration
 
