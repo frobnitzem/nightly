@@ -10,7 +10,7 @@ buildvars: ["nvhpc", "cuda"]
 
 # note: buildvars are always present as the first elements of runvars
 #       Inside run scripts, buildID and runID are also accessible.
-runvars: ["problem", "nnodes", "algo"]
+runvars: ["problem", "nnodes", "algo", "n_ffts_per_batch"]
 
 resultvars: ["MTXEL", "CHI SUM"]
 
@@ -20,6 +20,6 @@ machines:
     configs:
       - build: ['21.3', '11.2.2']
         runs:
-          - ['Si_216', 1, 'OPENACC_ALGO']
-          - ['Si_216', 1, 'OMP_TARGET_ALGO']
-          - ['Si_216', 1, 'CPU_ALGO']
+          - ['Si_216', 1, 'OPENACC_ALGO', 1]
+          - ['Si_216', 1, 'OMP_TARGET_ALGO', 1]
+          - ['Si_216', 1, 'CPU_ALGO', 1]

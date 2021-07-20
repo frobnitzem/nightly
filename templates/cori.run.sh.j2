@@ -28,12 +28,8 @@ comm_nonblocking_cyclic
 
 mtxel_algo {{algo}}
 chi_summation_algo {{algo}}
-
-mpi_tasks_per_device   1
-# cuda_use_wfn_pinned_memory
-# cuda_scale_mem  0.75
-# cuda_host_mem   48000
-# cuda_offload_mtxel
+# not available until July 20, 2021
+# n_ffts_per_batch {{n_ffts_per_batch}}
 .
 
 cat >batch.sh <<.
