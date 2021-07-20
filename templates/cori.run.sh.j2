@@ -10,7 +10,14 @@ source ../env.sh
 [ -s WFN.h5 ] || \
   ln -snf $INPUT_LOCATION/{{problem}}/WFN_file/WFN_out.h5 ./WFN.h5
 [ -s WFNq.h5 ] || \
-  ln -snf $INPUT_LOCAITON/{{problem}}/WFN_file/WFNq.h5 ./
+  ln -snf $INPUT_LOCATION/{{problem}}/WFN_file/WFNq.h5 ./
+
+for fname in WFN.h5 WFNq.h5; do
+  if [ ! -s $fname ]; then
+    echo "Unable to link to $fname"
+    exit 1
+  fi
+done
 
 cat >epsilon.inp <<.
 epsilon_cutoff      4.0

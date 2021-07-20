@@ -44,8 +44,8 @@ def main(argv):
     repo = Path(info['repo']).resolve()
     assert (repo/'.git').is_dir(), f"{repo} is not a git repository."
 
-    if pull and subprocess.call(["git", "fetch"], cwd=repo):
-        print(f"Error executing git fetch in {repo}")
+    if pull and subprocess.call(["git", "pull"], cwd=repo):
+        print(f"Error executing git pull in {repo}")
         return 1
 
     if commit is None:
