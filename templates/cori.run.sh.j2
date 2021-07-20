@@ -5,6 +5,8 @@ echo "Started run.sh"
 
 {% set ngpu = nnodes*8 %}
 
+source ../env.sh
+
 [ -s WFN.h5 ] || \
   ln -snf $INPUT_LOCATION/{{problem}}/WFN_file/WFN_out.h5 ./WFN.h5
 [ -s WFNq.h5 ] || \
