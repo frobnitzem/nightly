@@ -6,7 +6,9 @@
 
 if grep -q 'COMPLETE' stdout; then
     # capture extra information about the result
-    awk '/time:.*sec/ {print $(NF-1)}' stdout >result.txt
+    awk '/MTXEL  / {print $(NF-1)}' stdout >result.txt
+    awk '/CHI SUM \(TOTAL\)/ {print $(NF-1)}' stdout >>result.txt
+
     exit 0
 fi
 
