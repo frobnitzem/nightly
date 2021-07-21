@@ -23,3 +23,5 @@ machines:
           - ['Si_216', 1, 'OPENACC_ALGO', 1]
           - ['Si_216', 1, 'OMP_TARGET_ALGO', 1]
           - ['Si_216', 1, 'CPU_ALGO', 1]
+          - ['Si_216', 1, 'CPU_ALGO', 4]
+          - ['Si_216', 1, 'CPU_ALGO', 16]
