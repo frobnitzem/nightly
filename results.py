@@ -32,9 +32,9 @@ def results(argv):
             del argv[1]
         else:
             break
-    assert len(argv) == 2, f"Usage: {argv[0]} [--redo] <config.yaml>"
+    assert len(argv) == 1, f"Usage: {argv[0]} [--redo]"
 
-    cfg = Config(argv[1])
+    cfg = Config("config.yaml")
 
     s = Status(cfg.work/"builds.csv")
     

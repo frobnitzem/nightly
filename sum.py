@@ -80,9 +80,9 @@ def failed(b):
 
 
 def main(argv):
-    assert len(argv) == 3, f"Usage: {argv[0]} <config.yaml> <output dir>"
-    config = Config(argv[1])
-    out = Path(argv[2])
+    assert len(argv) == 1, f"Usage: {argv[0]}"
+    config = Config("config.yaml")
+    out = Path("results")
     out.mkdir(parents=True, exist_ok=True)
     work = config.work
 
@@ -132,7 +132,8 @@ def main(argv):
 
     if all_results is not None:
         print("\n# Result Summary\n")
-        all_results.show()
+        all_results.show(cols=config.runvars + config.resultvars)
+    all_results.write("all_results.csv")
 
 if __name__=="__main__":
     import sys

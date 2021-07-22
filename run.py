@@ -23,10 +23,10 @@ class RunEnv(StepsEnv):
 
 # TODO: ensure run_dir is created inside build_dir
 def run(argv):
-    assert len(argv) >= 3, f"Usage: {argv[0]} <config.yaml> [run info]"
+    assert len(argv) >= 2, f"Usage: {argv[0]} [run info]"
 
-    cfg = Config(argv[1])
-    info = argv[2:]
+    cfg = Config("config.yaml")
+    info = argv[1:]
     if cfg.validate_runinfo(info):
         return 101
 

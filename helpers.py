@@ -27,7 +27,7 @@ class Render:
     def __init__(self):
         from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
-        self.cwd = Path(__file__).resolve().parent
+        self.cwd = Path().resolve().parent
         file_loader = FileSystemLoader(self.cwd / 'templates')
         self.env = Environment(loader=file_loader, undefined=StrictUndefined)
 
@@ -142,18 +142,22 @@ class Status(dict):
                 s[k] = v + other[k][1:]
         return s
 
-    def show(self):
+    def show(self, cols=None):
         # print in markdown table format
         #
         if len(self) == 0:
             print("*empty*")
             return
 
-        hdr = self.columns
+        if cols is None:
+            cols = list(range(len(self.columns)))
+        else:
+            cols = [self.columns.index(j) for j in cols]
+        hdr = [self.columns[j] for j in cols]
         print( "| " + " | ".join(hdr) + " |" )
         print( "| --- "*len(hdr) + "|" )
         for k,row in self.items():
-            print("| " + " | ".join(row) + " |")
+            print("| " + " | ".join([row[j] for j in cols]) + " |")
 
     def write(self, fname, mode='a'):
         with open(fname, mode, encoding='utf-8') as f:

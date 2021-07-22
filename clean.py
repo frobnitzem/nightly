@@ -4,11 +4,17 @@ from helpers import *
 import shutil
 
 def clean(argv):
-    assert len(argv) == 3, f"Usage: {argv[0]} <config.yaml> <ID>"
+    assert len(argv) >= 2, f"Usage: {argv[0]} <ID> ..."
 
-    cfg = Config(argv[1])
-    ID = argv[2]
+    cfg = Config("config.yaml")
 
+    err = 0
+    for ID in argv[1:]:
+        err += del_id(cfg, ID)
+
+    return err
+
+def del_id(cfg, ID):
     s = Status(cfg.work/"builds.csv")
     if ID in s: # delete the entire build
         print(f"Deleting build {ID}")
