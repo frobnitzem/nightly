@@ -27,7 +27,7 @@ class Render:
     def __init__(self):
         from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
-        self.cwd = Path().resolve().parent
+        self.cwd = Path().resolve()
         file_loader = FileSystemLoader(self.cwd / 'templates')
         self.env = Environment(loader=file_loader, undefined=StrictUndefined)
 

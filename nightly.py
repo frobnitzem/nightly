@@ -20,7 +20,7 @@ def main(argv):
     rebuild = False
     rerun  = False
     commit = None
-    while len(argv) > 3:
+    while len(argv) > 2:
         if argv[1] == '--skip':
             pull = False
             del argv[1]

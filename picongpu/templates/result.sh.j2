@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# not complete
+[ -e stderr ] || exit 99
+[ -e stdout ] || exit 99
+
+if grep -q 'COMPLETE' stdout; then
+    # capture extra information about the result
+    awk '/time:.*sec/ {print $(NF-1)}' stdout >result.txt
+    exit 0
+fi
+
+# exit with error
+grep -q 'Exited' stderr && exit 1
+grep -q 'aborted:' stderr && exit 2
+grep -q 'error:' stderr && exit 3
+
+
+exit 99

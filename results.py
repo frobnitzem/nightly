@@ -26,7 +26,7 @@ def get_result(rundir, ninfo):
 
 def results(argv):
     redo = False
-    while len(argv) > 2:
+    while len(argv) > 1:
         if argv[1] == '--redo':
             redo = True
             del argv[1]

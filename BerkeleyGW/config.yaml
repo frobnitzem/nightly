@@ -1,0 +1,31 @@
+# List of configuration options to build and run.
+
+# location of all output files
+work: "../../nightly_tests"
+
+# configs specific to our build/run:
+# note: machine and commit are always present as first 2 items in buildvars
+#       Inside build scripts, buildID is also accessible.
+buildvars: ["arch", "nvhpc", "cuda"]
+
+# note: buildvars are always present as the first elements of runvars
+#       Inside run scripts, buildID and runID are also accessible.
+runvars: ["problem", "nnodes", "algo", "n_ffts_per_batch"]
+
+resultvars: ["MTXEL", "CHI SUM"]
+
+machines:
+  cori:
+    repo: "../../BerkeleyGW"
+    configs:
+      - build: ['cc70', '21.3', '11.2.2']
+        runs:
+          - ['Si_216', 1, 'OPENACC_ALGO', 1]
+          - ['Si_216', 1, 'OMP_TARGET_ALGO', 1]
+          - ['Si_216', 1, 'CPU_ALGO', 1]
+          - ['Si_216', 1, 'CPU_ALGO', 4]
+          - ['Si_216', 1, 'CPU_ALGO', 16]
+      - build: ['cc80', '21.3', '11.2.1']
+        runs:
+          - ['Si_216', 1, 'OPENACC_ALGO', 1]
+          - ['Si_216', 1, 'OMP_TARGET_ALGO', 1]

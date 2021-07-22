@@ -1,0 +1,35 @@
+#!/bin/bash
+
+set -e
+echo "Started run.sh"
+
+{% set nprocs = nx*ny*nz %}
+{% set nnodes = (nprocs+3) // 4 %}
+
+cat >batch.sh <<.
+#!/bin/bash
+#SBATCH --partition=caar
+#SBATCH --time=00:30:00
+#SBATCH --job-name={{ problem }}
+#SBATCH --nodes={{ nnodes }}
+#SBATCH --ntasks={{ nprocs }}
+#SBATCH --cpus-per-task=2
+#SBATCH --mem=0
+#SBATCH --gres=gpu:4
+#SBATCH --open-mode=append
+#SBATCH -o stdout
+#SBATCH -e stderr
+
+source ../env.sh
+
+echo "Started job on $SLURM_JOB_NODELIST"
+
+srun -n {{ nprocs }} -N {{ nnodes }} --gres=gpu:4 --cpus-per-task=2 --exclusive \
+     ../sys/bin/picongpu -d {{nx}} {{ny}} {{nz}} -g {{grid}} --periodic {{periodic}} \
+                         --mpiDirect -s 1000 --percent 1 \
+                         --versionOnce --e_macroParticlesCount.period 50
+
+echo "COMPLETE"
+.
+
+sbatch batch.sh
