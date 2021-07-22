@@ -37,10 +37,10 @@ class BuildEnv(StepsEnv):
                       cwd = str(self.dir))
 
 def build(argv):
-    assert len(argv) >= 3, f"Usage: {argv[0]} <config.yaml> [build info]"
+    assert len(argv) >= 2, f"Usage: {argv[0]} [build info]"
 
-    cfg = Config(argv[1])
-    info = argv[2:]
+    cfg = Config("config.yaml")
+    info = argv[1:]
     if cfg.validate_buildinfo(info):
         return 101
 

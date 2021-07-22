@@ -39,8 +39,8 @@ def show_csv(fname):
     return s
 
 def main(argv):
-    assert len(argv) == 2, f"Usage: {argv[0]} <config.yaml>"
-    config = Config(argv[1])
+    assert len(argv) == 1, f"Usage: {argv[0]}"
+    config = Config("config.yaml")
     work = config.work
 
     print("# Builds\n")
@@ -82,7 +82,8 @@ def main(argv):
 
     if all_results is not None:
         print("\n# Result Summary\n")
-        all_results.show()
+        all_results.show(cols=config.runvars + config.resultvars)
+    all_results.write("all_results.csv")
 
 if __name__=="__main__":
     import sys

@@ -4,12 +4,12 @@ from helpers import *
 import shutil
 
 def clean(argv):
-    assert len(argv) >= 3, f"Usage: {argv[0]} <config.yaml> <ID> ..."
+    assert len(argv) >= 2, f"Usage: {argv[0]} <ID> ..."
 
-    cfg = Config(argv[1])
+    cfg = Config("config.yaml")
 
     err = 0
-    for ID in argv[2:]:
+    for ID in argv[1:]:
         err += del_id(cfg, ID)
 
     return err

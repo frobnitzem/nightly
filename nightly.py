@@ -35,10 +35,10 @@ def main(argv):
             del argv[1:3]
         else:
             break
-    assert len(argv) == 3, f"Usage: {argv[0]} [--skip] [--rebuild] [--rerun] [-c commit] <config.yaml> <machine>"
+    assert len(argv) == 2, f"Usage: {argv[0]} [--skip] [--rebuild] [--rerun] [-c commit] <machine>"
 
-    cfg = Config(argv[1])
-    machine = argv[2]
+    cfg = Config("config.yaml")
+    machine = argv[1]
 
     info = cfg.machines[machine]
     repo = Path(info['repo']).resolve()
@@ -58,8 +58,8 @@ def main(argv):
     for commit in commits:
         assert commit.strip() == commit and commit != ""
         for b in info['configs']:
-            build_args = ['build', argv[1], machine, commit] + b['build']
-            buildID = derive(build_args[2:])
+            build_args = ['build', machine, commit] + b['build']
+            buildID = derive(build_args[1:])
             print(f"examining {buildID}")
 
             try:
@@ -82,7 +82,7 @@ def main(argv):
             rs = Status(cfg.work/buildID/"runs.csv")
             build_args[0] = 'run'
             for r in b['runs']:
-                runID = derive(build_args[2:])
+                runID = derive(build_args[1:])
                 if runID not in rs or rerun:
                     run( build_args + r )
     
