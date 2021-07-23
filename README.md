@@ -53,7 +53,7 @@ your understanding, then edit the scripts in `templates/` directory.
 
   * `results.py <config.yaml>` Gather all results from completed runs.
 
-  * `sum.py <config.yaml>` Create a human-readable summary of the build and run results.
+  * `sum.py <config.yaml>` Create a `results` directory with markdown and csv summaries.
 
   * `clean.py <config.yaml> <ID>` Delete a build or run-ID.
     Note: This will delete the directory with the selected ID name too.

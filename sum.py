@@ -4,36 +4,36 @@
 
 from helpers import *
 import shutil
-import re
+import re, sys
 
-def show_file(fname):
+def show_file(fname, file=sys.stdout):
     # print the file inside triple quotes
     if not fname.exists():
         return 1
-    print("```")
+    print("```", file=file)
     with open(fname, 'r', encoding = 'utf-8') as f:
-        print(f.read())
-    print("```")
+        print(f.read(), file=file)
+    print("```", file=file)
     return 0
 
-def show_status(base, fname):
+def show_status(base, fname, file=sys.stdout):
     # print a status.txt file from base / fname
     # and show failing parts
     fail = re.compile(r'(\w+) failed after')
     with open(base / fname, 'r', encoding = 'utf-8') as f:
         for line in f:
             if line[0] == ' ': # abnormal format for the line
-                print("       > " + line.strip())
+                print("       > " + line.strip(), file=file)
             else:
-                print("    - " + line.strip())
+                print("    - " + line.strip(), file=file)
                 m = fail.search(line)
                 if m is not None:
-                    show_file(base / f"{m[1]}.log")
+                    show_file(base / f"{m[1]}.log", file=file)
 
-#def show_csv(fname):
-#    s = Status(fname)
-#    s.show()
-#    return s
+def show_csv(fname, file=sys.stdout):
+    s = Status(fname)
+    s.show(file=file)
+    return s
 
 def sortby(data, col):
     v = [(row[col], row) for row in data]
@@ -78,7 +78,6 @@ def span(text, style):
 def failed(b):
     return b[2] != "0"
 
-
 def main(argv):
     assert len(argv) == 1, f"Usage: {argv[0]}"
     config = Config("config.yaml")
@@ -90,10 +89,9 @@ def main(argv):
     builds = Status(work / 'builds.csv')
     shutil.copyfile(work / 'builds.csv', out / 'builds.csv')
 
-    bld = open(out / "builds.md")
+    bld = open(out / "builds.md", 'w', encoding='utf-8')
     bld.write("# [Builds](builds.csv)\n")
-    for k,v in builds.items():
-        bld.write()
+    builds.show(file=bld)
 
     #fails = open(out / "fails.md")
     #fails = [v for k,v in builds.items() if failed(v)]
@@ -105,17 +103,20 @@ def main(argv):
     #        print(f"  * {date}: {work/ID} returned {ret}")
     #        show_status( work / ID , 'status.txt' )
 
-    print("\n# Runs")
+    run = open(out / "runs.md", 'w', encoding='utf-8')
+    print("\n# Runs", file=run)
     all_results = None
 
     for buildID,v in builds.items():
-        print(f"\n## Build {buildID} {v}\n")
+        print(f"\n## Build {buildID}\n", file=run)
+        for name,val in zip(builds.columns, v):
+            print(f"  * {name}: {val}", file=run)
 
-        print(f"\n### Script submissions\n")
-        runs = show_csv(work / buildID / 'runs.csv')
+        print(f"\n### Script submissions\n", file=run)
+        runs = show_csv(work / buildID / 'runs.csv', file=run)
         fails = [v for k,v in runs.items() if failed(v)]
 
-        print(f"\n### Run results\n")
+        print(f"\n### Run results\n", file=run)
         results = Status(work / buildID / 'results.csv')
         r = runs.join(results)
         if all_results is None:
@@ -124,16 +125,19 @@ def main(argv):
             all_results.update(r)
 
         if len(fails) > 0:
-            print("\n## Failing Run Info\n")
+            print("\n### Failing Run Info\n", file=run)
             for r in fails:
                 ID, date, ret = r[0], r[1], int(r[2])
-                print(f"  * {date}: {work/buildID/ID} returned {ret}")
-                show_status( work / buildID / ID , 'status.txt' )
-
-    if all_results is not None:
-        print("\n# Result Summary\n")
-        all_results.show(cols=config.runvars + config.resultvars)
-    all_results.write("all_results.csv")
+                print(f"  * {date}: {work/buildID/ID} returned {ret}", file=run)
+                show_status( work / buildID / ID , 'status.txt', file=run )
+    
+    with open(out / "results.md", 'w', encoding='utf-8') as f:
+        f.write("# [Results](results.csv)\n")
+        if all_results is None:
+            f.write("\n*empty*\n")
+        else:
+            all_results.show(cols=config.runvars + config.resultvars, file=f)
+        all_results.write(out / "results.csv")
 
 if __name__=="__main__":
     import sys

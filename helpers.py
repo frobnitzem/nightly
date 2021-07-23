@@ -1,8 +1,6 @@
 from pathlib import Path
-import csv
-import os
+import csv, sys, os, time
 import subprocess
-import time
 from hashlib import blake2b
 from datetime import datetime, timedelta
 import yaml
@@ -142,11 +140,11 @@ class Status(dict):
                 s[k] = v + other[k][1:]
         return s
 
-    def show(self, cols=None):
+    def show(self, cols=None, file=sys.stdout):
         # print in markdown table format
         #
         if len(self) == 0:
-            print("*empty*")
+            print("*empty*", file=file)
             return
 
         if cols is None:
@@ -154,10 +152,10 @@ class Status(dict):
         else:
             cols = [self.columns.index(j) for j in cols]
         hdr = [self.columns[j] for j in cols]
-        print( "| " + " | ".join(hdr) + " |" )
-        print( "| --- "*len(hdr) + "|" )
+        print( "| " + " | ".join(hdr) + " |", file=file)
+        print( "| --- "*len(hdr) + "|", file=file)
         for k,row in self.items():
-            print("| " + " | ".join([row[j] for j in cols]) + " |")
+            print("| " + " | ".join([row[j] for j in cols]) + " |", file=file)
 
     def write(self, fname, mode='a'):
         with open(fname, mode, encoding='utf-8') as f:
