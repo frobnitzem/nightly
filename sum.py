@@ -123,6 +123,10 @@ def main(argv):
             all_results = r
         else:
             all_results.update(r)
+        #print(buildID)
+        #print(list(results.keys()), len(results.columns))
+        #print(list(r.keys()), len(r.columns))
+        #print(list(all_results.keys()), len(all_results.columns))
 
         if len(fails) > 0:
             print("\n### Failing Run Info\n", file=run)
@@ -133,11 +137,11 @@ def main(argv):
     
     with open(out / "results.md", 'w', encoding='utf-8') as f:
         f.write("# [Results](results.csv)\n")
-        if all_results is None:
+        if all_results is None or len(all_results.columns) == 0:
             f.write("\n*empty*\n")
         else:
-            all_results.show(cols=config.runvars + config.resultvars, file=f)
-        all_results.write(out / "results.csv")
+            all_results.show(cols=['runID'] + config.runvars + config.resultvars, file=f)
+        all_results.write(out / "results.csv", 'w')
 
 if __name__=="__main__":
     import sys

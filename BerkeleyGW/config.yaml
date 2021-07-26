@@ -15,7 +15,15 @@ runvars: ["problem", "nnodes", "algo", "n_ffts_per_batch"]
 resultvars: ["MTXEL", "CHI SUM"]
 
 machines:
-  cori:
+  cori_cpu:
+    repo: "../../BerkeleyGW"
+    configs:
+      - build: ['cpu', '21.3', '11.2.2']
+        runs:
+          - ['Si_216', 1, 'CPU_ALGO', 1]
+          - ['Si_216', 1, 'CPU_ALGO', 4]
+          - ['Si_216', 1, 'CPU_ALGO', 16]
+  cori_gpu:
     repo: "../../BerkeleyGW"
     configs:
       - build: ['cc70', '21.3', '11.2.2']
@@ -23,8 +31,9 @@ machines:
           - ['Si_216', 1, 'OPENACC_ALGO', 1]
           - ['Si_216', 1, 'OMP_TARGET_ALGO', 1]
           - ['Si_216', 1, 'CPU_ALGO', 1]
-          - ['Si_216', 1, 'CPU_ALGO', 4]
-          - ['Si_216', 1, 'CPU_ALGO', 16]
+  cori_dgx:
+    repo: "../../BerkeleyGW"
+    configs:
       - build: ['cc80', '21.3', '11.2.1']
         runs:
           - ['Si_216', 1, 'OPENACC_ALGO', 1]

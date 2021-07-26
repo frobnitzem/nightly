@@ -121,6 +121,12 @@ class Status(dict):
 
         self.columns = hdr
 
+    def update(self, other):
+        if len(self.columns) == 0:
+            self.columns = other.columns
+        for k, v in other.items():
+            self[k] = v
+
     def join(self, other, both=False):
         # Left join.
         # if both == True, do an inner join (removing rows with no key in `other')
@@ -151,11 +157,15 @@ class Status(dict):
             cols = list(range(len(self.columns)))
         else:
             cols = [self.columns.index(j) for j in cols]
+        #print(cols)
         hdr = [self.columns[j] for j in cols]
         print( "| " + " | ".join(hdr) + " |", file=file)
         print( "| --- "*len(hdr) + "|", file=file)
         for k,row in self.items():
-            print("| " + " | ".join([row[j] for j in cols]) + " |", file=file)
+            try:
+                print("| " + " | ".join([row[j] for j in cols]) + " |", file=file)
+            except IndexError:
+                print(f"Error in row row[0], length = {len(row)}")
 
     def write(self, fname, mode='a'):
         with open(fname, mode, encoding='utf-8') as f:

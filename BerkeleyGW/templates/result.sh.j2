@@ -14,6 +14,12 @@ if grep -q 'COMPLETE' stdout; then
     awk '/MTXEL  / {print $(NF-1)}' stdout >result.txt
     awk '/CHI SUM \(TOTAL\)/ {print $(NF-1)}' stdout >>result.txt
 
+    # TODO: check correctness by comparing
+    #awk '/^ *q-pt *1/ {print}' stdout
+    #q-pt      1: Head of Epsilon         =     1.777155780306700E+01    9.444295146084263E-18
+    #q-pt      1: Epsilon(2,2)            =     9.272942740558381E+00    9.479103421337468E-19
+    #q-pt      1: Head of Epsilon Inverse =     6.073146761646067E-02   -3.179578877077269E-20
+    #q-pt      1: Epsilon Inverse(2,2)    =     1.180618658161385E-01   -1.325474213554972E-20
     exit 0
 fi
 

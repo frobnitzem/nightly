@@ -19,12 +19,14 @@ build_fftw() {
   make -j install
 }
 
-[ -d fftw-3.3.9 ] || ( build_fftw )
-export FFTW_DIR="$CWD/fftw-3.3.9"
+# Don't re-compile fftw.
+#[ -d fftw-3.3.9 ] || ( build_fftw )
+#export FFTW_DIR="$CWD/fftw-3.3.9"
 
 cd BerkeleyGW
 cp flavor_cplx.mk flavor.mk
 
+# TODO: consider using "config/cori-gpu.nersc.openacc.mk"
 cat >arch.mk <<.
 # arch.mk for Cori GPU, 07/20/2021, using hpcsdk/{{nvhpc}} and cuda/{{cuda}}
 # initially copied from /global/cscratch1/sd/yunhe/bgw_compiler_bugs/BerkeleyGW/arch.mk
@@ -60,11 +62,8 @@ C_OPTS  = -fast -mp
 C_DEBUGFLAG =
 REMOVE  = /bin/rm -f
 FFTWLIB      = -L"$FFTW_DIR/lib" -lfftw3_omp -lfftw3 -lm
-{% if arch == "cc70" %}
-SCALAPACKLIB = /usr/common/software/sles15_cgpu/nvhpc/{{nvhpc}}/Linux_x86_64/{{nvhpc}}/comm_libs/openmpi4/openmpi-4.0.5/lib/libscalapack.a
-{% else %}
+{% if arch == "cc80" %}
 FFTWLIB     += /usr/common/software/pgi/19.7/linux86-64/19.7/lib/libblas.a
-SCALAPACKLIB = /usr/common/software/osuse15_dgx/nvhpc/{{nvhpc}}/Linux_x86_64/{{nvhpc}}/comm_libs/openmpi4/openmpi-4.0.5/lib/libscalapack.a
 {% endif %}
 FFTWLIB     += \$(CUDALIB) -lstdc++
 FFTWINCLUDE  = "$FFTW_DIR/include"
@@ -73,3 +72,7 @@ HDF5_LDIR    =  \$(HDF5_DIR)/lib/
 HDF5LIB      =  -L\$(HDF5_LDIR) -lhdf5 -lhdf5_fortran -lhdf5_hl -lhdf5_hl_fortran -lz -ldl
 HDF5INCLUDE  =\$(HDF5_INCLUDE_OPTS)
 .
+
+{% if arch == "cpu" %}
+cp config/cori2.nersc.gov_intel.mk arch.mk
+{% endif %}
