@@ -8,6 +8,11 @@ echo "Started run.sh"
 NCPU=128
 RESOURCE=dgx
 
+if [ ! -z "$RESERVATION" ]; then
+  SBATCH_RES="#SBATCH --reservation=$RESERVATION"
+else
+  SBATCH_RES=""
+fi
 source ../env.sh
 
 [ -s WFN.h5 ] || \
@@ -55,7 +60,7 @@ cat >batch.sh <<.
 #SBATCH -o stdout
 #SBATCH -e stderr
 #SBATCH -A m3502
-
+$SBATCH_RES
 source ../env.sh
 
 echo "Started job on \$SLURM_JOB_NODELIST"

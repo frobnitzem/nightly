@@ -5,6 +5,13 @@ from hashlib import blake2b
 from datetime import datetime, timedelta
 import yaml
 
+def span(text, style):
+    return f'<span style="{style}">{text}</span>'
+
+# does the return-code indicate fail?
+def failed(b):
+    return b[2] != "0"
+
 def derive(tpl):
     h = blake2b(digest_size=10)
     for s in tpl:
@@ -124,20 +131,28 @@ class Status(dict):
     def update(self, other):
         if len(self.columns) == 0:
             self.columns = other.columns
-        for k, v in other.items():
+        N = len(self.columns)
+        for k, v in other.items(): # justify to new #cols
+            if len(v) < N:
+                v = v + ['']*(N-len(v))
             self[k] = v
 
-    def join(self, other, both=False):
+    def join(self, other, rhs_cols, both=False):
         # Left join.
         # if both == True, do an inner join (removing rows with no key in `other')
         # return a new table with information from both tables.
         # the keys must be the same.
+        #
+        # rhs_cols indicates the columns the right-side (other) must contain
+        #
         # columns from self are on the left
-        # the first column from other is removed
+        # the first column from other is removed (not present in right-side)
         #
         s = Status()
-        s.columns = self.columns + other.columns[1:]
-        f = ['']*(len(other.columns)-1) # filler for empty rhs
+        if len(other.columns[1:]) > 0:
+            assert tuple(rhs_cols) == tuple(other.columns[1:])
+        s.columns = self.columns + rhs_cols
+        f = ['']*len(rhs_cols) # filler for empty rhs
         for k, v in self.items():
             if k not in other:
                 if not both:
@@ -146,7 +161,7 @@ class Status(dict):
                 s[k] = v + other[k][1:]
         return s
 
-    def show(self, cols=None, file=sys.stdout):
+    def show(self, cols=None, file=sys.stdout, link=None):
         # print in markdown table format
         #
         if len(self) == 0:
@@ -161,11 +176,13 @@ class Status(dict):
         hdr = [self.columns[j] for j in cols]
         print( "| " + " | ".join(hdr) + " |", file=file)
         print( "| --- "*len(hdr) + "|", file=file)
+
         for k,row in self.items():
-            try:
-                print("| " + " | ".join([row[j] for j in cols]) + " |", file=file)
-            except IndexError:
-                print(f"Error in row row[0], length = {len(row)}")
+            r = [row[j] for j in cols]
+            if link is not None and len(r) > 0:
+                color = "color:red" if failed(row) else "color:green"
+                r[0] = span("[%s](%s)"%(r[0], Path(link)/r[0]), color)
+            print("| " + " | ".join(r) + " |", file=file)
 
     def write(self, fname, mode='a'):
         with open(fname, mode, encoding='utf-8') as f:

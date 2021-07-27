@@ -41,8 +41,8 @@ NVCC=nvcc
 NVCCOPT= -use_fast_math
 CUDALIB=-L\$(CUDA_ROOT)/lib64  -lcufft -lcublas  -lcudart # -lcuda 
 FCPP    = /usr/bin/cpp  -P -ansi  -nostdinc  -C  -E  -std=c11
-F90free = mpif90 -acc -Mcuda -mp=gpu -gpu=cc70 -Minfo=mp  #-Mcuda=lineinfo   
-LINK    = mpif90 -acc -Mcuda -mp=gpu -gpu=cc70 -Minfo=mp -llapack -lblas   
+F90free = mpif90 -acc -Mcuda -mp=gpu -gpu={{arch}} -Minfo=mp  #-Mcuda=lineinfo   
+LINK    = mpif90 -acc -Mcuda -mp=gpu -gpu={{arch}} -Minfo=mp -llapack -lblas   
 # FOPTS   = -O2  -fopenmp  -ffree-form -ffree-line-length-none -fbounds-check  -fimplicit-none  -Wall  -fcheck=all  -pedantic  -fbacktrace
 #FOPTS   = -O3  -fopenmp   -march=native  -funroll-loops  -funsafe-loop-optimizations -funsafe-math-optimizations -ftree-vect-loop-version -ftree-vectorize  -ffree-form  -ffree-line-length-none
 FOPTS   = -fast -Mfree  -mp -Mlarge_arrays 

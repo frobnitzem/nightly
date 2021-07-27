@@ -11,8 +11,8 @@ def last_30(repo):
     return lines.decode('utf-8').split('\n')
 
 # latest commit only
-def latest(repo):
-    lines = subprocess.check_output(['git', 'log', '-n1', '--pretty=format:%H'], cwd=repo)
+def latest(repo, n=1):
+    lines = subprocess.check_output(['git', 'log', '-n%d'%n, '--pretty=format:%H'], cwd=repo)
     return [ lines.decode('utf-8').strip() ]
 
 def main(argv):
@@ -20,6 +20,7 @@ def main(argv):
     rebuild = False
     rerun  = False
     commit = None
+    n = 1
     while len(argv) > 2:
         if argv[1] == '--skip':
             pull = False
@@ -33,9 +34,12 @@ def main(argv):
         elif argv[1] == '-c':
             commit = argv[2]
             del argv[1:3]
+        elif argv[1] == '-n':
+            n = int(argv[2])
+            del argv[1:3]
         else:
             break
-    assert len(argv) == 2, f"Usage: {argv[0]} [--skip] [--rebuild] [--rerun] [-c commit] <machine>"
+    assert len(argv) == 2, f"Usage: {argv[0]} [--skip] [--rebuild] [--rerun] [-n 1] [-c commit] <machine>"
 
     cfg = Config("config.yaml")
     machine = argv[1]
@@ -49,7 +53,7 @@ def main(argv):
         return 1
 
     if commit is None:
-        commits = latest(repo)
+        commits = latest(repo, n)
     else:
         commits = [commit]
 

@@ -15,9 +15,9 @@ d88'   88b.88'  `?88P'`88.d88'   88b  `?8b     88b,`?88P'?8b
 ----------------------------------------------------------------
 
 
-# PIConGPU nightly build and performance tests
+# scripted nightly build and performance tests
 
-This repository contains scripts to build and run picongpu
+This repository contains scripts to build and run your HPC app
 on multiple systems in multiple test configurations.
 
 Results are output in a custom work directory.
@@ -69,7 +69,7 @@ the variables are as follows:
 
 * buildID
   * machine = machine name
-  * commit = picongpu commit hash
+  * commit = git commit hash to build
   * compiler = compiler module name
   * accel = accelerator module name (cuda or rocm)
   * mpi = mpi module name
@@ -123,7 +123,8 @@ outside this directory, however.
 The `build.py` script carries out these steps, aborting the process on error:
 
 1. mkdir `build_dir` and run `templates/clone.sh <git repo dir> <commit>`
-   - this script should clone picongpu at the specified commit into `picongpu`
+   - this script should clone your repo at the specified commit into a subdir
+   - usually the output subdir has the same same as your repository
    - its output is captured to `clone.log`
    - nonzero return aborts the build
 

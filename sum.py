@@ -30,9 +30,9 @@ def show_status(base, fname, file=sys.stdout):
                 if m is not None:
                     show_file(base / f"{m[1]}.log", file=file)
 
-def show_csv(fname, file=sys.stdout):
+def show_csv(fname, file=sys.stdout, link=None):
     s = Status(fname)
-    s.show(file=file)
+    s.show(file=file, link=None)
     return s
 
 def sortby(data, col):
@@ -71,13 +71,6 @@ def output_dir(self, out, name):
             for r in sortby(items, i):
                 print("| " + " | ".join(r) + " |", file=f)
 
-def span(text, style):
-    return f'<span style="{style}">{text}</span>'
-
-# does the return-code indicate fail?
-def failed(b):
-    return b[2] != "0"
-
 def main(argv):
     assert len(argv) == 1, f"Usage: {argv[0]}"
     config = Config("config.yaml")
@@ -85,13 +78,19 @@ def main(argv):
     out.mkdir(parents=True, exist_ok=True)
     work = config.work
 
+    with open(out/"README.md", 'w', encoding='utf-8') as f:
+        f.write("""# Build and Run Results
+    * [List of Attempted Runs](runs.md)
+    * [List of Builds](builds.md) [csv](builds.csv)
+    * [Result Summary](results.md) [csv](results.csv)\n""")
+
     #builds = show_csv(work / 'builds.csv')
     builds = Status(work / 'builds.csv')
     shutil.copyfile(work / 'builds.csv', out / 'builds.csv')
 
     bld = open(out / "builds.md", 'w', encoding='utf-8')
     bld.write("# [Builds](builds.csv)\n")
-    builds.show(file=bld)
+    builds.show(file=bld, link="")
 
     #fails = open(out / "fails.md")
     #fails = [v for k,v in builds.items() if failed(v)]
@@ -108,25 +107,39 @@ def main(argv):
     all_results = None
 
     for buildID,v in builds.items():
-        print(f"\n## Build {buildID}\n", file=run)
+        build_out = out / buildID
+        build_out.mkdir(exist_ok=True)
+        for fname in ['build.sh', 'build.log', 'env.sh',
+                      'clone.log', 'setup.sh', 'setup.log',
+                      'status.txt', 'runs.csv', 'results.csv']:
+            if (work/buildID/fname).exists():
+                shutil.copyfile(work/buildID/fname, build_out/fname)
+
+
+        print(f"\n## Build [{buildID}]({buildID}/status.txt)\n", file=run)
         for name,val in zip(builds.columns, v):
             print(f"  * {name}: {val}", file=run)
 
-        print(f"\n### Script submissions\n", file=run)
+        print(f"\n### [Script submissions]({buildID}/runs.csv)\n", file=run)
         runs = show_csv(work / buildID / 'runs.csv', file=run)
         fails = [v for k,v in runs.items() if failed(v)]
 
-        print(f"\n### Run results\n", file=run)
+        print(f"\n### [Run results]({buildID}/results.csv)\n", file=run)
         results = Status(work / buildID / 'results.csv')
-        r = runs.join(results)
+        r = runs.join(results, ['date', 'return value'] + config.resultvars)
+        r.show(file=run, link=buildID)
+        for runID, v in r.items():
+            run_out = build_out / runID
+            run_out.mkdir(exist_ok=True)
+            for fname in ['run.sh', 'run.log', 'result.sh', 'result.log',
+                          'result.txt', 'status.txt']:
+                if (work/buildID/runID/fname).exists():
+                    shutil.copyfile(work/buildID/runID/fname, run_out/fname)
+
         if all_results is None:
             all_results = r
         else:
             all_results.update(r)
-        #print(buildID)
-        #print(list(results.keys()), len(results.columns))
-        #print(list(r.keys()), len(r.columns))
-        #print(list(all_results.keys()), len(all_results.columns))
 
         if len(fails) > 0:
             print("\n### Failing Run Info\n", file=run)

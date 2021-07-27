@@ -3,7 +3,7 @@
 set -e
 echo "Started run.sh"
 
-NCPU=272
+NCPU=68
 RESOURCE=knl
 
 source ../env.sh
@@ -46,10 +46,11 @@ cat >batch.sh <<.
 #!/bin/bash
 #SBATCH --nodes={{ nnodes }}
 #SBATCH --job-name={{ problem }}
+#SBATCH --exclusive
 #SBATCH -C $RESOURCE
-#SBATCH -c $NCPU
 #SBATCH -t 1:00:00
 #SBATCH -o stdout
+#SBATCH -q regular
 #SBATCH -e stderr
 #SBATCH -A m3502
 
@@ -59,9 +60,9 @@ echo "Started job on \$SLURM_JOB_NODELIST"
 
 export OMP_PROC_BIND=spread
 export OMP_PLACES=threads
-export OMP_NUM_THREADS=1
+export OMP_NUM_THREADS=4
 #export PGI_ACC_TIME=1
-srun -n $NCPU -c 1 --cpu-bind=core ../BerkeleyGW/bin/epsilon.cplx.x
+srun -n $NCPU -c 4 --cpu-bind=core ../BerkeleyGW/bin/epsilon.cplx.x
 echo "COMPLETE"
 .
 
