@@ -89,18 +89,19 @@ def main(argv):
     shutil.copyfile(work / 'builds.csv', out / 'builds.csv')
 
     bld = open(out / "builds.md", 'w', encoding='utf-8')
-    bld.write("# [Builds](builds.csv)\n")
-    builds.show(file=bld, link="")
-
-    #fails = open(out / "fails.md")
-    #fails = [v for k,v in builds.items() if failed(v)]
-
-    #if len(fails) > 0:
-    #    print("\n# Failing Build Info\n")
-    #    for b in fails:
-    #        ID, date, ret = b[0], b[1], int(b[2])
-    #        print(f"  * {date}: {work/ID} returned {ret}")
-    #        show_status( work / ID , 'status.txt' )
+    #bld.write("# [Builds](builds.csv)\n")
+    #builds.show(file=bld, link="")
+    bld.write("# [Builds](builds.csv)\n\n")
+    for k,v in builds.items():
+        err = ""
+        if failed(v):
+            ID, date, ret = v[0], v[1], int(v[2])
+            (out/ID).mkdir(exist_ok=True)
+            shutil.copyfile(work/ID/'build.log', out/ID/'build.log')
+            #show_status( work / ID , 'status.txt' )
+            err = " [[err = {ret}]]({ID}/build.log)"
+        bld.write(f"  * {k}: {v}{err}\n")
+    bld.close()
 
     run = open(out / "runs.md", 'w', encoding='utf-8')
     print("\n# Runs", file=run)

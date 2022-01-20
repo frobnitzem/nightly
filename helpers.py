@@ -177,8 +177,13 @@ class Status(dict):
         print( "| " + " | ".join(hdr) + " |", file=file)
         print( "| --- "*len(hdr) + "|", file=file)
 
+        def get(row, j):
+            try:
+                return row[j]
+            except IndexError:
+                return ""
         for k,row in self.items():
-            r = [row[j] for j in cols]
+            r = [get(row,j) for j in cols]
             if link is not None and len(r) > 0:
                 color = "color:red" if failed(row) else "color:green"
                 r[0] = span("[%s](%s)"%(r[0], Path(link)/r[0]), color)

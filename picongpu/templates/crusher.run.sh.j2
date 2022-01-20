@@ -4,7 +4,7 @@ set -e
 echo "Started run.sh"
 
 {% set nprocs = nx*ny*nz %}
-{% set nnodes = (nprocs+3) // 4 %}
+{% set nnodes = (nprocs+7) // 8 %}
 
 source ../env.sh
 
@@ -25,7 +25,7 @@ cat >batch.sh <<.
 #SBATCH --nodes={{ nnodes }}
 #SBATCH --ntasks={{ nprocs }}
 #SBATCH --cpus-per-task=8
-#SBATCH --gres=gpu:4
+#SBATCH --gres=gpu:8
 #SBATCH --open-mode=append
 #SBATCH -o stdout
 #SBATCH -e stderr
@@ -36,7 +36,8 @@ echo "Started job on \$SLURM_JOB_NODELIST"
 SRUN="srun -n {{ nprocs }} -N {{ nnodes }} -c8"
 \$SRUN /bin/bash -c 'echo \$(hostname) \$(grep Cpus_allowed_list /proc/self/status) GPUS: \$ROCR_VISIBLE_DEVICES' | sort -n >affinity.txt
 
-\$SRUN ../sys/bin/picongpu -d {{nx}} {{ny}} {{nz}} -g {{grid}} --periodic {{periodic}} \
+\$SRUN ../sys/bin/picongpu -d {{nx}} {{ny}} {{nz}} -g {{grid}} \
+                         --periodic {{periodic}} \
                          $DIRECT_FLAG -s 1000 --percent 1 \
                          --versionOnce --e_macroParticlesCount.period 50
 

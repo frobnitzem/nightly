@@ -4,9 +4,13 @@ from helpers import *
 
 def get_result(rundir, ninfo):
     info = ['']*ninfo
-    ret = check_execute(rundir / 'result.log',
-                        rundir / 'result.sh',
-                        cwd=rundir)
+    try:
+      ret = check_execute(rundir / 'result.log',
+                          rundir / 'result.sh',
+                          cwd=rundir)
+    except FileNotFoundError:
+      ret = 1
+
     if ret != 0:
         return ret, info
 
