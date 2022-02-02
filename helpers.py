@@ -1,8 +1,11 @@
+from typing import Callable
+from functools import wraps
 from pathlib import Path
 import csv, sys, os, time
 import subprocess
 from hashlib import blake2b
 from datetime import datetime, timedelta
+
 import yaml
 
 def span(text, style):
@@ -55,33 +58,47 @@ def days_earlier(m):
     dt = timedelta(m)
     return (datetime.now() - dt).strftime("%Y-%m-%d %H:%M:%S")
 
-def log_step(func):
-    # Run the function with a timer, and catch all errors.
-    # Print what we're doing to the terminal.
-    # Output the results to self.log.
-    def run_step(self, *args, **kws):
-        print(f"{self.ID}: Starting {func.__name__}")
-        t0 = time.time()
-        e = None
-        try:
-            ret = func(self, *args, **kws)
-        except Exception as ex:
-            #e = ex
-            import traceback
-            e = traceback.format_exc()
-            ret = 100
-        assert isinstance(ret, int), "Error: func must return integer!"
+def log_step(*args, **display_info):
+    """
+    display_info can contain info to give during the following events:
 
-        t1 = time.time()
-        with open(self.log, 'a', encoding='utf-8') as f:
-            if ret:
-                f.write(f"{stamp()}: {func.__name__} failed after {t1-t0} seconds.\n")
-                if e is not None:
-                    f.write(f"    Internal Exception: {e}\n")
-            else:
-                f.write(f"{stamp()}: {func.__name__} succeeded in {t1-t0} seconds.\n")
-        return ret
-    return run_step
+    name : str -- name of step/super-step being run
+    """
+
+    def mk_closure(func):
+        # Run the function with a timer, and catch all errors.
+        # Print what we're doing to the terminal.
+        # Output the results to self.log.
+        @wraps(func)
+        def run_step(self, *args, **kws):
+            name = display_info.get('name', func.__name__)
+            print(f"{self.ID}: Starting {name}")
+            t0 = time.time()
+            e = None
+            try:
+                ret = func(self, *args, **kws)
+            except Exception as ex:
+                #e = ex
+                import traceback
+                e = traceback.format_exc()
+                ret = 100
+            assert isinstance(ret, int), "Error: func must return integer!"
+
+            t1 = time.time()
+            with open(self.log, 'a', encoding='utf-8') as f:
+                if ret:
+                    f.write(f"{stamp()}: {name} failed after {t1-t0} seconds.\n")
+                    if e is not None:
+                        f.write(f"    Internal Exception: {e}\n")
+                else:
+                    f.write(f"{stamp()}: {name} succeeded in {t1-t0} seconds.\n")
+            return ret
+        return run_step
+
+    # invoked as @log_step
+    if len(args) == 1 and isinstance(args[0], Callable):
+        return mk_closure(args[0])
+    return mk_closure
 
 class Config:
     def __init__(self, fname):

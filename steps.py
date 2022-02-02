@@ -21,7 +21,7 @@ class StepsEnv:
         self.vals[f'{self.step}ID']   = self.ID
         self.vals[f'{self.step}_dir'] = self.dir
 
-    @log_step
+    @log_step(name = f"superstep")
     def run(self):
         self.dir.mkdir(parents=True, exist_ok=True)
         if self.log.exists():
