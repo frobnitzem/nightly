@@ -33,7 +33,7 @@ cat >batch.sh <<.
 
 echo "Started job on \$SLURM_JOB_NODELIST"
 
-SRUN="srun -n {{ nprocs }} -N {{ nnodes }} -c8"
+SRUN="srun -n {{ nprocs }} -N {{ nnodes }} -c8 --ntasks-per-node 8 --gpus-per-task 1 --gpu-bind closest"
 \$SRUN /bin/bash -c 'echo \$(hostname) \$(grep Cpus_allowed_list /proc/self/status) GPUS: \$ROCR_VISIBLE_DEVICES' | sort -n >affinity.txt
 
 \$SRUN ../sys/bin/picongpu -d {{nx}} {{ny}} {{nz}} -g {{grid}} \
@@ -47,7 +47,7 @@ if [ {{nnodes}} -le 4 ]; then
   \$SRUN rocprof -o hip.csv --stats \
       ../sys/bin/picongpu -d {{nx}} {{ny}} {{nz}} -g {{grid}} \
                           --periodic {{periodic}} \
-                          --mpiDirect -s 1000 --percent 1 >profile.log
+                          $DIRECT_FLAG -s 1000 --percent 1 >profile.log
 
   sed 's/\(.*"\)\(.*CuplaKernel<\)\([A-Za-z:]*\)\(.*"\)/\1\3"/g' hip.csv > hip_clean.csv
   sed 's/\(.*"\)\(.*CuplaKernel<\)\([A-Za-z:]*\)\(.*"\)/\1\3"/g' hip.stats.csv > hip_clean.stats.csv

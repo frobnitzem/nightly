@@ -8,7 +8,7 @@ source env.sh
 
 if ! [ -z {{phash}} ]; then
   pushd $HOME/picongpu
-  git archive {{ phash }} | tar -x -C "$CWD/picongpu" share/picongpu/benchmarks/
+  git archive {{ phash }} | tar --overwrite -x -C "$CWD/picongpu" share/picongpu/benchmarks/
   popd
 fi
 
@@ -21,3 +21,6 @@ fi
 
 picongpu/bin/pic-create $dir sys
 
+if ! [ -z {{phash}} ]; then
+  cp -r $dir/include/pmacc sys/include/
+fi

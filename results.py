@@ -22,6 +22,8 @@ def get_result(rundir, ninfo):
         info = []
         for line in f:
             info.append(line[:-1])
+    if len(info) % ninfo == 0:
+        info = info[-ninfo:]
     if len(info) != ninfo:
         print(f"Invalid info present in {rundir/'result.txt'} -- expected {ninfo} elements.")
         info = ['']*ninfo
