@@ -238,3 +238,16 @@ The outputs from each run are stored in several places:
 
    - Schema: runID, date, results return code, resultvars (gathered from results.txt)
 
+# TODO
+
+Miscellaneous improvements we'd like to see:
+
+* better names for super-steps during the logging
+* capture `templates/` subdirectory itself in the run hash -- so that changes in the templates get turned into separate runs
+* ability to select a subset of the tests during a run / summary output
+  - maybe an interactive pick/delete examination of current run status
+  - DB query / subset functionality
+* file locking to allow multiple compile/run jobs to run simultaneously
+* more user docs and examples
+* better support for changing user-defined config parameters during run/build processes
+  - json-like tagged properties for each build/run
