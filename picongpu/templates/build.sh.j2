@@ -16,8 +16,8 @@ cmake -DCMAKE_INSTALL_PREFIX="$CWD/sys" \
       -DALPAKA_ACC_GPU_HIP_ENABLE=ON \
       -DALPAKA_ACC_GPU_HIP_ONLY_MODE=ON \
       -DGPU_TARGETS="$arch" \
+      -DALPAKA_HIP_KEEP_FILES=ON \
 {#    -DALPAKA_HIP_ARCH="$arch" #} \
-{#      -DALPAKA_HIP_KEEP_FILES=ON #} \
 {% endif -%}
 {%- if "cuda" in accel %}
       -DALPAKA_ACC_GPU_CUDA_ENABLE=ON \

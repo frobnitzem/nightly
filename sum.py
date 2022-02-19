@@ -137,9 +137,9 @@ def main(argv):
                 if (work/buildID/runID/fname).exists():
                     shutil.copyfile(work/buildID/runID/fname, run_out/fname)
 
-        if all_results is None:
+        if all_results is None and 'runID' in r.columns:
             all_results = r
-        else:
+        elif all_results:
             all_results.update(r)
 
         if len(fails) > 0:
