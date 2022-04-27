@@ -38,7 +38,7 @@ SRUN="srun -n {{ nprocs }} -N {{ nnodes }} -c8 --ntasks-per-node 8 --gpus-per-ta
 
 \$SRUN ../sys/bin/picongpu -d {{nx}} {{ny}} {{nz}} -g {{grid}} \
                          --periodic {{periodic}} \
-                         $DIRECT_FLAG -s 100 --percent 1 \
+                         $DIRECT_FLAG -s 500 --percent 1 \
                          --versionOnce --e_macroParticlesCount.period 50
 
 echo "COMPLETE"
@@ -47,7 +47,7 @@ if [ 8 -le 4 ]; then
   \$SRUN rocprof -o hip.csv --stats \
       ../sys/bin/picongpu -d {{nx}} {{ny}} {{nz}} -g {{grid}} \
                           --periodic {{periodic}} \
-                          $DIRECT_FLAG -s 1000 --percent 1 >profile.log
+                          $DIRECT_FLAG -s 500 --percent 1 >profile.log
 
   sed 's/\(.*"\)\(.*CuplaKernel<\)\([A-Za-z:]*\)\(.*"\)/\1\3"/g' hip.csv > hip_clean.csv
   sed 's/\(.*"\)\(.*CuplaKernel<\)\([A-Za-z:]*\)\(.*"\)/\1\3"/g' hip.stats.csv > hip_clean.stats.csv
