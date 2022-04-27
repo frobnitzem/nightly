@@ -139,7 +139,11 @@ class Status(dict):
 
         with open(fname, 'r', encoding = 'utf-8', newline='') as csvfile:
             reader = csv.reader(csvfile, dialect='excel')
-            hdr = next(reader)
+            try:
+                hdr = next(reader)
+            except StopIteration:
+                self.columns = []
+                return
             for row in reader:
                 self[row[0]] = row
 
