@@ -9,23 +9,33 @@ source env.sh
 mkdir -p build
 cd build
 
-cmake -DCMAKE_INSTALL_PREFIX="$CWD/sys" \
-      -DPIC_EXTENSION_PATH="$CWD/sys" \
-      -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+../picongpu/bin/pic-configure \
 {%- if "rocm" in accel %}
-      -DALPAKA_ACC_GPU_HIP_ENABLE=ON \
-      -DALPAKA_ACC_GPU_HIP_ONLY_MODE=ON \
-      -DGPU_TARGETS="$arch" \
-      -DALPAKA_HIP_KEEP_FILES=ON \
-{#    -DALPAKA_HIP_ARCH="$arch" #} \
+           -b hip:$arch \
 {% endif -%}
 {%- if "cuda" in accel %}
-      -DALPAKA_ACC_GPU_CUDA_ENABLE=ON \
-      -DALPAKA_ACC_GPU_CUDA_ONLY_MODE=ON \
-      -DALPAKA_CUDA_ARCH="70" \
+           -b cuda:70 \
 {% endif -%}
-      ../picongpu/include/picongpu
+           -c "-DCMAKE_BUILD_TYPE=RelWithDebInfo -DALPAKA_HIP_KEEP_FILES=ON -DALPAKA_CUDA_KEEP_FILES=ON" \
+           -i "$CWD/sys" \
+           ..
+
+#cmake -DCMAKE_INSTALL_PREFIX="$CWD/sys" \
+#      -DPIC_EXTENSION_PATH="$CWD/sys" \
+#      -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+#{%- if "rocm" in accel %}
+#      -DALPAKA_ACC_GPU_HIP_ENABLE=ON \
+#      -DALPAKA_ACC_GPU_HIP_ONLY_MODE=ON \
+#      -DGPU_TARGETS="$arch" \
+#      -DALPAKA_HIP_KEEP_FILES=ON \
+#{#    -DALPAKA_HIP_ARCH="$arch" #} \
+#{% endif -%}
+#{%- if "cuda" in accel %}
+#      -DALPAKA_ACC_GPU_CUDA_ENABLE=ON \
+#      -DALPAKA_ACC_GPU_CUDA_ONLY_MODE=ON \
+#      -DALPAKA_CUDA_ARCH="70" \
+#{% endif -%}
+#      ../picongpu/include/picongpu
 
 # make and install
-make -j install
-
+nice make -j 8 install

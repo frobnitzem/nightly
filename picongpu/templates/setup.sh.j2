@@ -22,5 +22,5 @@ fi
 picongpu/bin/pic-create $dir sys
 
 if ! [ -z {{phash}} ]; then
-  cp -r $dir/include/pmacc sys/include/
+  cp -r $dir/include/pmacc sys/include/ || :
 fi

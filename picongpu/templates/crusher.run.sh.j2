@@ -18,6 +18,14 @@ if [ ${MPICH_GPU_SUPPORT_ENABLED:-0} -eq 1 ]; then
   DIRECT_FLAG="--mpiDirect"
 fi
 
+cat >profile.sh <<.
+#!/bin/bash
+
+out=hip_\${SLURM_PROCID}
+rocprof -o \${out}.csv --stats \$@
+.
+chmod +x profile.sh
+
 cat >batch.sh <<.
 #!/bin/bash
 #SBATCH --time=00:45:00
@@ -40,17 +48,18 @@ SRUN="srun -n {{ nprocs }} -N {{ nnodes }} -c8 --ntasks-per-node 8 --gpus-per-ta
                          --periodic {{periodic}} \
                          $DIRECT_FLAG -s 500 --percent 1 \
                          --versionOnce --e_macroParticlesCount.period 50
+if [ $? -eq 0 ]; then
+  echo "COMPLETE"
+else
+  echo "ERROR"
+fi
 
-echo "COMPLETE"
-
-if [ 8 -le 4 ]; then
-  \$SRUN rocprof -o hip.csv --stats \
+if [ {{nnodes}} -le 2 ]; then
+  \$SRUN ./profile.sh \
       ../sys/bin/picongpu -d {{nx}} {{ny}} {{nz}} -g {{grid}} \
                           --periodic {{periodic}} \
                           $DIRECT_FLAG -s 500 --percent 1 >profile.log
 
-  sed 's/\(.*"\)\(.*CuplaKernel<\)\([A-Za-z:]*\)\(.*"\)/\1\3"/g' hip.csv > hip_clean.csv
-  sed 's/\(.*"\)\(.*CuplaKernel<\)\([A-Za-z:]*\)\(.*"\)/\1\3"/g' hip.stats.csv > hip_clean.stats.csv
 fi
 .
 
