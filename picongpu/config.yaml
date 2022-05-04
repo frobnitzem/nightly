@@ -49,6 +49,18 @@ machines:
       - build: ['hipcc', 'rocm/5.1.0', 'cpe/22.04', 'PaperThermal', '69685b4b']
         runs:
          - [1, 1, 1, "192 192 192", "1 1 1"]
+      # -> this one takes ~20 minutes to compile
       - build: ['hipcc', 'rocm/5.1.0', 'cpe/22.04', 'TWEAC*thms', '69685b4b']
+        runs:
+         - [2, 6, 4, "480 1632 896", "1 1 1"]
+      #- build: ['rocm/5.0.2'] # -> performance regression, slow TWEAC
+      # -> this one compiles & runs fast
+      - build: ['hipcc', 'rocm/4.5.0', 'cray-mpich/8.1.12', 'SPEC', '']
+        runs:
+         - [2, 6, 4, "512 1536 1024", "1 1 1"]
+      - build: ['hipcc', 'rocm/4.5.0', 'cray-mpich/8.1.12', 'PaperThermal', '69685b4b']
+        runs:
+         - [1, 1, 1, "192 192 192", "1 1 1"]
+      - build: ['hipcc', 'rocm/4.5.0', 'cray-mpich/8.1.12', 'TWEAC*thms', '69685b4b']
         runs:
          - [2, 6, 4, "480 1632 896", "1 1 1"]

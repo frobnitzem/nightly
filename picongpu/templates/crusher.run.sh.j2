@@ -54,11 +54,11 @@ else
   echo "ERROR"
 fi
 
-if [ {{nnodes}} -le 2 ]; then
+if [ {{nnodes}} -le 100 ]; then
   \$SRUN ./profile.sh \
       ../sys/bin/picongpu -d {{nx}} {{ny}} {{nz}} -g {{grid}} \
                           --periodic {{periodic}} \
-                          $DIRECT_FLAG -s 500 --percent 1 >profile.log
+                          $DIRECT_FLAG -s 100 --percent 1 >profile.log
 
 fi
 .

@@ -18,7 +18,7 @@ cd build
 {% endif -%}
            -c "-DCMAKE_BUILD_TYPE=RelWithDebInfo -DALPAKA_HIP_KEEP_FILES=ON -DALPAKA_CUDA_KEEP_FILES=ON" \
            -i "$CWD/sys" \
-           ..
+           ../sys
 
 #cmake -DCMAKE_INSTALL_PREFIX="$CWD/sys" \
 #      -DPIC_EXTENSION_PATH="$CWD/sys" \
