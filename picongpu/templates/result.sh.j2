@@ -3,7 +3,7 @@
 cat >parse.py <<.
 import csv
 
-kernels = ["MoveAndMark", "ComputeCurrent", "ShiftParticles"]
+kernels = ["MoveAndMark", "ComputeCurrent", "ShiftParticles", "FieldBackgroundE", "FieldBackgroundB"]
 
 def show_stats(fname):
     ans = dict((k,0.0) for k in kernels)

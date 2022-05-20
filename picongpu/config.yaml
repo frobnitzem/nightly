@@ -13,7 +13,7 @@ buildvars: ["compiler", "accel", "mpi", "problem", "phash"]
     #       Inside run scripts, buildID and runID are also accessible.
 runvars: ["nx", "ny", "nz", "grid", "periodic", "runFlags"]
 
-resultvars: ["init", "simulation", "total", "particles", "MoveAndMark", "ComputeCurrent", "ShiftParticles"]
+resultvars: ["init", "simulation", "total", "particles", "MoveAndMark", "ComputeCurrent", "ShiftParticles", "FieldBackgroundE", "FieldBackgroundB"]
 
 machines:
   summit:
