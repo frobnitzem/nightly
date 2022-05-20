@@ -16,10 +16,10 @@ cd build
 {%- if "cuda" in accel %}
            -b cuda:70 \
 {% endif -%}
-           -c "-DCMAKE_BUILD_TYPE=RelWithDebInfo -DALPAKA_HIP_KEEP_FILES=ON -DALPAKA_CUDA_KEEP_FILES=ON" \
            -i "$CWD/sys" \
            ../sys
 
+#          -c "-DCMAKE_BUILD_TYPE=RelWithDebInfo -DALPAKA_HIP_KEEP_FILES=ON -DALPAKA_CUDA_KEEP_FILES=ON" \
 #cmake -DCMAKE_INSTALL_PREFIX="$CWD/sys" \
 #      -DPIC_EXTENSION_PATH="$CWD/sys" \
 #      -DCMAKE_BUILD_TYPE=RelWithDebInfo \

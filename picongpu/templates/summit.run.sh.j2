@@ -33,7 +33,8 @@ SRUN="jsrun -n {{ nprocs }} -a1 -c7 -g1 -bpacked:7 --smpiargs=-gpu"
 #                            --mpiDirect -s 500 --percent 1 \
 #                            --openPMD.period 30 --openPMD.file simData --openPMD.ext bp --openPMD.json @../input/etc/picongpu/adios2.json --versionOnce --currentInterpolation none
 
-\$SRUN ../sys/bin/picongpu -d {{nx}} {{ny}} {{nz}} -g {{grid}} --periodic {{periodic}} \
+\$SRUN ../sys/bin/picongpu -d {{nx}} {{ny}} {{nz}} -g {{grid}} \
+                         --periodic {{periodic}} {{runFlags}} \
                            --mpiDirect -s 500 --percent 1 \
                            --versionOnce --e_macroParticlesCount.period 50
 

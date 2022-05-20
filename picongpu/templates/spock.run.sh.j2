@@ -36,7 +36,8 @@ echo "Started job on \$SLURM_JOB_NODELIST"
 SRUN="srun -n {{ nprocs }} -N {{ nnodes }} -c8"
 \$SRUN /bin/bash -c 'echo \$(hostname) \$(grep Cpus_allowed_list /proc/self/status) GPUS: \$ROCR_VISIBLE_DEVICES' | sort -n >affinity.txt
 
-\$SRUN ../sys/bin/picongpu -d {{nx}} {{ny}} {{nz}} -g {{grid}} --periodic {{periodic}} \
+\$SRUN ../sys/bin/picongpu -d {{nx}} {{ny}} {{nz}} -g {{grid}} \
+                         --periodic {{periodic}} {{runFlags}} \
                          $DIRECT_FLAG -s 500 --percent 1 \
                          --versionOnce --e_macroParticlesCount.period 50
 
@@ -45,7 +46,7 @@ echo "COMPLETE"
 if [ {{nnodes}} -le 4 ]; then
   \$SRUN rocprof -o hip.csv --stats \
       ../sys/bin/picongpu -d {{nx}} {{ny}} {{nz}} -g {{grid}} \
-                          --periodic {{periodic}} \
+                         --periodic {{periodic}} {{runFlags}} \
                           $DIRECT_FLAG -s 500 --percent 1 >profile.log
 
   sed 's/\(.*"\)\(.*CuplaKernel<\)\([A-Za-z:]*\)\(.*"\)/\1\3"/g' hip.csv > hip_clean.csv

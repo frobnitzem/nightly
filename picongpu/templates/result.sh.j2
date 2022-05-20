@@ -1,5 +1,37 @@
 #!/bin/bash
 
+cat >parse.py <<.
+import csv
+
+kernels = ["MoveAndMark", "ComputeCurrent", "ShiftParticles"]
+
+def show_stats(fname):
+    ans = dict((k,0.0) for k in kernels)
+
+    with open(fname, encoding='utf-8') as f:
+        reader = csv.DictReader(f, delimiter=',', quotechar='"')
+        # "Name","Calls","TotalDurationNs","AverageNs","Percentage"
+        for row in reader:
+            name = row['Name'] # symbol
+            #calls = row['Calls']
+            total = float(row['TotalDurationNs'])
+            #avg = row['AverageNs']
+            #pct = row['Percentage']
+            for k in kernels:
+                if name.find(k) != -1:
+                    ans[k] += total
+                    break
+
+    for k in kernels:
+        print(f"{ans[k]*1e-9:.3f}")
+
+if __name__=="__main__":
+    import sys
+    argv = sys.argv
+    assert len(argv) == 2, f"Usage: {argv[0]} <hip.stats.csv>"
+    show_stats(argv[1])
+.
+
 # not complete
 [ -e stderr ] || exit 99
 [ -e stdout ] || exit 99
@@ -7,6 +39,15 @@
 if grep -q 'COMPLETE' stdout; then
     # capture extra information about the result
     awk '/time:.*sec/ {print $(NF-1)}' stdout >result.txt
+    awk '/^[^#0]/ {if(NF == 3) {lines += 1; n += $2;}} END {print n/lines}' \
+            e_macroParticlesCount.dat >>result.txt
+    if [ -f hip_0.stats.csv ]; then
+        python3 parse.py hip_0.stats.csv >>result.txt
+    else
+        echo "0" >>result.txt
+        echo "0" >>result.txt
+        echo "0" >>result.txt
+    fi
     exit 0
 fi
 
@@ -14,6 +55,5 @@ fi
 grep -q 'Exited' stderr && exit 1
 grep -q 'aborted:' stderr && exit 2
 grep -q 'error:' stderr && exit 3
-
 
 exit 99
