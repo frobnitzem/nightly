@@ -13,6 +13,17 @@ if [ -z $PROJ ]; then
     exit 1
 fi
 
+cat >profile.sh <<.
+#!/bin/bash
+
+if [ \${OMPI_COMM_WORLD_RANK} -eq 0 ]; then
+  nvprof --csv --log-file profile.csv -f --profile-api-trace none \$@
+else
+  \$@
+fi
+.
+chmod +x profile.sh
+
 cat >batch.lsf <<.
 #!/bin/bash
 #BSUB -q batch
@@ -38,7 +49,19 @@ SRUN="jsrun -n {{ nprocs }} -a1 -c7 -g1 -bpacked:7 --smpiargs=-gpu"
                            --mpiDirect -s 500 --percent 1 \
                            --versionOnce --e_macroParticlesCount.period 50
 
-echo "COMPLETE"
+if [ $? -eq 0 ]; then
+  echo "COMPLETE"
+else
+  echo "ERROR"
+fi
+
+if [ {{nnodes}} -le 100 ]; then
+  \$SRUN ./profile.sh \
+      ../sys/bin/picongpu -d {{nx}} {{ny}} {{nz}} -g {{grid}} \
+                         --periodic {{periodic}} {{runFlags}} \
+                          --mpiDirect -s 100 --percent 1 >profile.log
+
+fi
 .
 
 bsub batch.lsf

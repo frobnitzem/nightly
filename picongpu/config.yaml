@@ -22,13 +22,20 @@ machines:
       - build: ["gcc/9.3.0", "cuda/11.0.3", "spectrum-mpi/10.4.0.3-20210112", "SPEC", ""]
         runs:
          - [2, 6, 4, "512 1536 1024", "1 1 1", ""]
-      - build: ["gcc/9.3.0", "cuda/11.0.3", "spectrum-mpi/10.4.0.3-20210112", "PaperThermal", "69685b4b"]
-        runs:
-         - [1, 1, 1, "192 192 192", "1 1 1", ""]
       - build: ["gcc/9.3.0", "cuda/11.0.3", "spectrum-mpi/10.4.0.3-20210112", "Thermal", ""]
         runs:
          - [1, 1, 1, "192 192 192", "1 1 1", ""]
+      - build: ["gcc/9.3.0", "cuda/11.0.3", "spectrum-mpi/10.4.0.3-20210112", "TWEAC*run", "9b2867"]
+        runs:
+         - [2, 6, 4, "480 1632 896", "1 1 1", ""]
       - build: ["gcc/9.3.0", "cuda/11.0.3", "spectrum-mpi/10.4.0.3-20210112", "TWEAC*thms", "9b2867"]
+        runs:
+         - [2, 6, 4, "480 1632 896", "1 1 1", ""]
+         - [2, 6, 4, "480 1632 896", "1 1 1", "--fieldBackground.duplicateFields"]
+      # reproduce 2019 FOM run using hzdr repo as of Jan, 2020: 4a90da17
+      # -- requires early 2020 picongpu dev code state
+      # like Thu Feb 13: 6988a00d4dbdbdfbeac49bb25372c944d120b747
+      - build: ["gcc/9.3.0", "cuda/11.0.3", "spectrum-mpi/10.4.0.3-20210112", "TWEAC*run", "4a90da17"]
         runs:
          - [2, 6, 4, "480 1632 896", "1 1 1", ""]
   spock:
@@ -40,34 +47,30 @@ machines:
       - build: ["hipcc", "rocm/4.5.0", "cray-mpich", "Thermal", ""]
         runs:
          - [1, 1, 1, "192 192 192", "1 1 1", ""]
+      - build: ["hipcc", "rocm/4.5.0", "cray-mpich", "TWEAC*run", "9b2867"]
+        runs:
+         - [2, 6, 4, "480 1632 896", "1 1 1", ""]
       - build: ["hipcc", "rocm/4.5.0", "cray-mpich", "TWEAC*thms", "9b2867"]
         runs:
          - [2, 6, 4, "480 1632 896", "1 1 1", ""]
+         - [2, 6, 4, "480 1632 896", "1 1 1", "--fieldBackground.duplicateFields"]
   crusher:
     repo: "../../picongpu"
     configs:
-      - build: ["hipcc", "rocm/5.1.0", "cray-mpich/8.1.16", "SPEC", ""]
-        runs:
-         - [2, 6, 4, "512 1536 1024", "1 1 1", ""]
-         - [2, 6, 4, "512 1536 1024", "1 1 1", "--fieldBackground.duplicateFields"]
-      - build: ["hipcc", "rocm/5.1.0", "cray-mpich/8.1.16", "Thermal", ""]
-        runs:
-         - [1, 1, 1, "192 192 192", "1 1 1", ""]
-         - [1, 1, 1, "192 192 192", "1 1 1", "--fieldBackground.duplicateFields"]
-      # -> this one takes ~20 minutes to compile!
-      - build: ["hipcc", "rocm/5.1.0", "cray-mpich/8.1.16", "TWEAC*thms", "69685b4b"]
+     #- build: ["hipcc", "rocm/5.1.0", "cray-mpich/8.1.16", "SPEC", ""]
+     #  runs:
+     #   - [2, 6, 4, "512 1536 1024", "1 1 1", ""]
+     #- build: ["hipcc", "rocm/5.1.0", "cray-mpich/8.1.16", "Thermal", ""]
+     #  runs:
+     #   - [1, 1, 1, "192 192 192", "1 1 1", ""]
+     #- build: ["hipcc", "rocm/5.1.0", "cray-mpich/8.1.16", "TWEAC*run", "9b2867"]
+     #  runs:
+     #   - [2, 6, 4, "480 1632 896", "1 1 1", ""]
+      - build: ["hipcc", "rocm/5.1.0", "cray-mpich/8.1.16", "TWEAC*thms", "9b2867"]
         runs:
          - [2, 6, 4, "480 1632 896", "1 1 1", ""]
          - [2, 6, 4, "480 1632 896", "1 1 1", "--fieldBackground.duplicateFields"]
-      - build: ["hipcc", "rocm/4.5.0", "cray-mpich/8.1.12", "SPEC", ""]
-        runs:
-         - [2, 6, 4, "512 1536 1024", "1 1 1", ""]
-         - [2, 6, 4, "512 1536 1024", "1 1 1", "--fieldBackground.duplicateFields"]
-      - build: ["hipcc", "rocm/4.5.0", "cray-mpich/8.1.12", "Thermal", ""]
-        runs:
-         - [1, 1, 1, "192 192 192", "1 1 1", ""]
-         - [1, 1, 1, "192 192 192", "1 1 1", "--fieldBackground.duplicateFields"]
-      - build: ["hipcc", "rocm/4.5.0", "cray-mpich/8.1.12", "TWEAC*thms", "9b2867"]
+      - build: ["hipcc #atomic", "rocm/5.1.0", "cray-mpich/8.1.16", "TWEAC*thms", "9b2867"]
         runs:
          - [2, 6, 4, "480 1632 896", "1 1 1", ""]
          - [2, 6, 4, "480 1632 896", "1 1 1", "--fieldBackground.duplicateFields"]

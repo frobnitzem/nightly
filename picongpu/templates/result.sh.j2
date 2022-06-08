@@ -8,27 +8,40 @@ kernels = ["MoveAndMark", "ComputeCurrent", "ShiftParticles", "FieldBackgroundE"
 def show_stats(fname):
     ans = dict((k,0.0) for k in kernels)
 
+    lines = []
     with open(fname, encoding='utf-8') as f:
-        reader = csv.DictReader(f, delimiter=',', quotechar='"')
-        # "Name","Calls","TotalDurationNs","AverageNs","Percentage"
-        for row in reader:
-            name = row['Name'] # symbol
-            #calls = row['Calls']
-            total = float(row['TotalDurationNs'])
-            #avg = row['AverageNs']
-            #pct = row['Percentage']
-            for k in kernels:
-                if name.find(k) != -1:
-                    ans[k] += total
-                    break
+        for line in f: # NVIDIA mixes text with its csv output...
+            if line[:2] == '==': continue
+            if line[:2] == 'No': continue
+            if line[:2] == ',%': continue
+            lines.append(line)
+
+    reader = csv.DictReader(lines, delimiter=',', quotechar='"')
+    # nvidia: "Type","Time(%)","Time","Calls","Avg","Min","Max","Name"
+    #     units = us
+    # amd: "Name","Calls","TotalDurationNs","AverageNs","Percentage"
+    #     units = ns
+    for row in reader:
+        name = row['Name'] # symbol
+        #calls = row['Calls']
+        try:
+            total = float(row['TotalDurationNs'])*1e-9
+        except KeyError:
+            total = float(row['Time'])*1e-6
+        #avg = row['AverageNs']
+        #pct = row['Percentage']
+        for k in kernels:
+            if name.find(k) != -1:
+                ans[k] += total
+                break
 
     for k in kernels:
-        print(f"{ans[k]*1e-9:.3f}")
+        print(f"{ans[k]:.3f}")
 
 if __name__=="__main__":
     import sys
     argv = sys.argv
-    assert len(argv) == 2, f"Usage: {argv[0]} <hip.stats.csv>"
+    assert len(argv) == 2, f"Usage: {argv[0]} <stats.csv>"
     show_stats(argv[1])
 .
 
@@ -44,9 +57,13 @@ if grep -q 'COMPLETE' stdout; then
     if [ -f hip_0.stats.csv ]; then
         python3 parse.py hip_0.stats.csv >>result.txt
     else
-        echo "0" >>result.txt
-        echo "0" >>result.txt
-        echo "0" >>result.txt
+        if [ -f profile.csv ]; then
+            python3 parse.py profile.csv >>result.txt
+        else
+            for((i=1;i<=5;i++)); do
+                echo "0" >>result.txt
+            done
+        fi
     fi
     exit 0
 fi
