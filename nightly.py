@@ -74,7 +74,9 @@ def main(argv):
                 elif rerun: # only if necessary
                     do_build = ret != 0
                 else:
-                    continue # stick with cached result
+                    do_build = False
+                #else:
+                #    continue # stick with cached result
             except KeyError:
                 do_build = True
 
@@ -86,7 +88,7 @@ def main(argv):
             rs = Status(cfg.work/buildID/"runs.csv")
             build_args[0] = 'run'
             for r in b['runs']:
-                runID = derive(build_args[1:])
+                runID = derive(build_args[1:]+r)
                 if runID not in rs or rerun:
                     run( build_args + r )
     

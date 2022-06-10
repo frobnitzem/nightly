@@ -20,9 +20,11 @@ fi
 
 cat >profile.sh <<.
 #!/bin/bash
-
-out=hip_\${SLURM_PROCID}
-rocprof -o \${out}.csv --stats \$@
+if [ \${SLURM_PROCID} -eq 0 ]; then
+    rocprof -o hip_0.csv --stats \$@
+else
+    \$@
+fi
 .
 chmod +x profile.sh
 

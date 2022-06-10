@@ -4,6 +4,8 @@ cat >parse.py <<.
 import csv
 
 kernels = ["MoveAndMark", "ComputeCurrent", "ShiftParticles", "FieldBackgroundE", "FieldBackgroundB"]
+time_units = {'ks': 1e3, 's': 1.0, 'ms': 1e-3, 'us': 1e-6, 'ns': 1e-9}
+units = 1e-6
 
 def show_stats(fname):
     ans = dict((k,0.0) for k in kernels)
@@ -13,7 +15,9 @@ def show_stats(fname):
         for line in f: # NVIDIA mixes text with its csv output...
             if line[:2] == '==': continue
             if line[:2] == 'No': continue
-            if line[:2] == ',%': continue
+            if line[:2] == ',%': # NVIDIA units line, e.g. ,%,s,,s,s,s,
+                units = time_units[line.split(',')[2]]
+                continue
             lines.append(line)
 
     reader = csv.DictReader(lines, delimiter=',', quotechar='"')
@@ -27,7 +31,7 @@ def show_stats(fname):
         try:
             total = float(row['TotalDurationNs'])*1e-9
         except KeyError:
-            total = float(row['Time'])*1e-6
+            total = float(row['Time'])*units
         #avg = row['AverageNs']
         #pct = row['Percentage']
         for k in kernels:
