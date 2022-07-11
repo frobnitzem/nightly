@@ -35,9 +35,9 @@ machines:
       # reproduce 2019 FOM run using hzdr repo as of Jan, 2020: 4a90da17
       # -- requires early 2020 picongpu dev code state
       # like Thu Feb 13: 6988a00d4dbdbdfbeac49bb25372c944d120b747
-      - build: ["gcc/9.3.0", "cuda/11.0.3", "spectrum-mpi/10.4.0.3-20210112", "TWEAC*run", "4a90da17"]
-        runs:
-         - [2, 6, 4, "480 1632 896", "1 1 1", ""]
+     #- build: ["gcc/9.3.0", "cuda/11.0.3", "spectrum-mpi/10.4.0.3-20210112", "TWEAC*run", "4a90da17"]
+     #  runs:
+     #   - [2, 6, 4, "480 1632 896", "1 1 1", ""]
   spock:
     repo: "../../picongpu"
     configs:
@@ -66,11 +66,26 @@ machines:
      #- build: ["hipcc", "rocm/5.1.0", "cray-mpich/8.1.16", "TWEAC*run", "9b2867"]
      #  runs:
      #   - [2, 6, 4, "480 1632 896", "1 1 1", ""]
-      - build: ["hipcc", "rocm/5.1.0", "cray-mpich/8.1.16", "TWEAC*thms", "9b2867"]
+      - build: ["hipcc", "rocm/5.2.0", "cray-mpich/8.1.16", "TWEAC*thms", "9b2867"]
         runs:
          - [2, 6, 4, "480 1632 896", "1 1 1", ""]
          - [2, 6, 4, "480 1632 896", "1 1 1", "--fieldBackground.duplicateFields"]
-      - build: ["hipcc #atomic", "rocm/5.1.0", "cray-mpich/8.1.16", "TWEAC*thms", "9b2867"]
+      - build: ["hipcc #atomic", "rocm/5.2.0", "cray-mpich/8.1.16", "TWEAC*thms", "9b2867"]
+        runs:
+         - [2, 6, 4, "480 1632 896", "1 1 1", ""]
+         - [2, 6, 4, "480 1632 896", "1 1 1", "--fieldBackground.duplicateFields"]
+  frontier:
+    repo: "../../picongpu"
+    configs:
+      - build: ["hipcc", "rocm/5.1.0", "cray-mpich/8.1.17", "TWEAC-FOM", ""]
+        runs:
+         - [2, 6, 4, "480 1632 896", "1 1 1", ""]
+         - [2, 6, 4, "480 1632 896", "1 1 1", "--fieldBackground.duplicateFields"]
+      - build: ["hipcc #1", "rocm/5.1.0", "cray-mpich/8.1.17", "TWEAC-FOM", ""]
+        runs:
+         - [2, 6, 4, "480 1632 896", "1 1 1", ""]
+         - [2, 6, 4, "480 1632 896", "1 1 1", "--fieldBackground.duplicateFields"]
+      - build: ["hipcc #2", "rocm/5.1.0", "cray-mpich/8.1.17", "TWEAC-FOM", ""]
         runs:
          - [2, 6, 4, "480 1632 896", "1 1 1", ""]
          - [2, 6, 4, "480 1632 896", "1 1 1", "--fieldBackground.duplicateFields"]

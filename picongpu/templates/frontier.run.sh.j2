@@ -1,0 +1,68 @@
+#!/bin/bash
+
+set -e
+echo "Started run.sh"
+
+{% set nprocs = nx*ny*nz %}
+{% set nnodes = (nprocs+7) // 8 %}
+
+source ../env.sh
+
+if [ -z $PROJ ]; then
+    echo "Error: You must set PROJ to your project ID."
+    exit 1
+fi
+
+DIRECT_FLAG=""
+if [ ${MPICH_GPU_SUPPORT_ENABLED:-0} -eq 1 ]; then
+  DIRECT_FLAG="--mpiDirect"
+fi
+
+cat >profile.sh <<.
+#!/bin/bash
+if [ \${SLURM_PROCID} -eq 0 ]; then
+    rocprof -o hip_0.csv --stats \$@
+else
+    \$@
+fi
+.
+chmod +x profile.sh
+
+cat >batch.sh <<.
+#!/bin/bash
+#SBATCH --time=00:45:00
+#SBATCH --job-name={{ problem }}
+#SBATCH --nodes={{ nnodes }}
+#SBATCH --ntasks={{ nprocs }}
+#SBATCH --cpus-per-task=7
+#SBATCH --gres=gpu:8
+#SBATCH --open-mode=append
+#SBATCH -o stdout
+#SBATCH -e stderr
+#SBATCH -A $PROJ
+
+echo "Started job on \$SLURM_JOB_NODELIST"
+
+SRUN="srun -n {{ nprocs }} -N {{ nnodes }} -c7 --ntasks-per-node 8 --gpus-per-task 1 --gpu-bind closest"
+\$SRUN /bin/bash -c 'echo \$(hostname) \$(grep Cpus_allowed_list /proc/self/status) GPUS: \$ROCR_VISIBLE_DEVICES' | sort -n >affinity.txt
+
+\$SRUN ../sys/bin/picongpu -d {{nx}} {{ny}} {{nz}} -g {{grid}} \
+                         --periodic {{periodic}} {{runFlags}} \
+                         $DIRECT_FLAG -s 500 --percent 1 \
+                         --versionOnce --e_macroParticlesCount.period 50
+if [ $? -eq 0 ]; then
+  echo "COMPLETE"
+else
+  echo "ERROR"
+fi
+
+if [ {{nnodes}} -le 100 ]; then
+  \$SRUN ./profile.sh \
+      ../sys/bin/picongpu -d {{nx}} {{ny}} {{nz}} -g {{grid}} \
+                         --periodic {{periodic}} {{runFlags}} \
+                          $DIRECT_FLAG -s 100 --percent 1 >profile.log
+
+fi
+.
+
+sbatch batch.sh

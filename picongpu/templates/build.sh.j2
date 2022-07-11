@@ -15,7 +15,13 @@ cmake_flags="-c -DPMACC_HIP_EMULATE_SHAREDMEM_ATOMICADD_32BIT=OFF"
 export HIPCC_LINK_FLAGS_APPEND="$HIPCC_LINK_FLAGS_APPEND -munsafe-fp-atomics"
 {% endif %}
 
+preset=0
+{% if "#" in compiler %}
+preset=`sed -e 's/.*#//' <<<'{{compiler}}'`
+{% endif %}
+
 ../picongpu/bin/pic-configure \
+           -t $preset \
 {%- if "rocm" in accel %}
            -b hip:$arch \
 {% endif -%}
