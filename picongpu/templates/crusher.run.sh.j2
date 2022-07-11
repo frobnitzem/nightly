@@ -34,7 +34,7 @@ cat >batch.sh <<.
 #SBATCH --job-name={{ problem }}
 #SBATCH --nodes={{ nnodes }}
 #SBATCH --ntasks={{ nprocs }}
-#SBATCH --cpus-per-task=8
+#SBATCH --cpus-per-task=7
 #SBATCH --gres=gpu:8
 #SBATCH --open-mode=append
 #SBATCH -o stdout
@@ -43,7 +43,7 @@ cat >batch.sh <<.
 
 echo "Started job on \$SLURM_JOB_NODELIST"
 
-SRUN="srun -n {{ nprocs }} -N {{ nnodes }} -c8 --ntasks-per-node 8 --gpus-per-task 1 --gpu-bind closest"
+SRUN="srun -n {{ nprocs }} -N {{ nnodes }} -c7 --ntasks-per-node 8 --gpus-per-task 1 --gpu-bind closest"
 \$SRUN /bin/bash -c 'echo \$(hostname) \$(grep Cpus_allowed_list /proc/self/status) GPUS: \$ROCR_VISIBLE_DEVICES' | sort -n >affinity.txt
 
 \$SRUN ../sys/bin/picongpu -d {{nx}} {{ny}} {{nz}} -g {{grid}} \
