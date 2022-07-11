@@ -48,7 +48,7 @@ SRUN="srun -n {{ nprocs }} -N {{ nnodes }} -c7 --ntasks-per-node 8 --gpus-per-ta
 
 \$SRUN ../sys/bin/picongpu -d {{nx}} {{ny}} {{nz}} -g {{grid}} \
                          --periodic {{periodic}} {{runFlags}} \
-                         $DIRECT_FLAG -s 500 --percent 1 \
+                         $DIRECT_FLAG -s 1000 --percent 1 \
                          --versionOnce --e_macroParticlesCount.period 50
 if [ $? -eq 0 ]; then
   echo "COMPLETE"
