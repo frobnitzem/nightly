@@ -44,7 +44,11 @@ cat >batch.sh <<.
 echo "Started job on \$SLURM_JOB_NODELIST"
 
 SRUN="srun -n {{ nprocs }} -N {{ nnodes }} -c7 --ntasks-per-node 8 --gpus-per-task 1 --gpu-bind closest"
-\$SRUN /bin/bash -c 'echo \$(hostname) \$(grep Cpus_allowed_list /proc/self/status) GPUS: \$ROCR_VISIBLE_DEVICES' | sort -n >affinity.txt
+#\$SRUN /bin/bash -c 'echo \$(hostname) \$(grep Cpus_allowed_list /proc/self/status) GPUS: \$ROCR_VISIBLE_DEVICES' | sort -n >affinity.txt
+
+if [ -x ../sys/bin/cuda_memtest.sh ]; then
+  \$SRUN -K1 --gpu-bind=none ../sys/bin/cuda_memtest.sh
+fi
 
 \$SRUN ../sys/bin/picongpu -d {{nx}} {{ny}} {{nz}} -g {{grid}} \
                          --periodic {{periodic}} {{runFlags}} \
