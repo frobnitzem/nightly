@@ -32,7 +32,7 @@ cat >batch.sh <<.
 #!/bin/bash
 #SBATCH --time=00:45:00
 #SBATCH --job-name={{ problem }}
-#SBATCH --nodes={{ nnodes }}
+#SBATCH --nodes={{nnodes if nnodes < 3000 and nnodes+2 <= 9408 else nnodes+2}}
 #SBATCH --ntasks={{ nprocs }}
 #SBATCH --cpus-per-task=7
 #SBATCH --gres=gpu:8
@@ -50,9 +50,15 @@ if [ -x ../sys/bin/cuda_memtest.sh ]; then
   \$SRUN -K1 --gpu-bind=none ../sys/bin/cuda_memtest.sh
 fi
 
-\$SRUN ../sys/bin/picongpu -d {{nx}} {{ny}} {{nz}} -g {{grid}} \
-                         --periodic {{periodic}} {{runFlags}} \
-                         $DIRECT_FLAG -s 1000 --percent 1 \
+# conditionally create node-exclusion list
+ls -1 | sed -n -e 's/cuda_memtest_\\([^_]*\\)_.*/\\1/p' | sort -u >bad_nodes.txt
+excl=""
+test -s bad_nodes.txt && excl="-x./bad_nodes.txt"
+
+\$SRUN \$excl \
+       ../sys/bin/picongpu -d {{nx}} {{ny}} {{nz}} -g {{grid}} \\
+                         --periodic {{periodic}} {{runFlags}} \\
+                         $DIRECT_FLAG -s 1000 --percent 1 \\
                          --versionOnce --e_macroParticlesCount.period 50
 if [ $? -eq 0 ]; then
   echo "COMPLETE"
@@ -61,9 +67,9 @@ else
 fi
 
 if [ {{nnodes}} -le 100 ]; then
-  \$SRUN ./profile.sh \
-      ../sys/bin/picongpu -d {{nx}} {{ny}} {{nz}} -g {{grid}} \
-                         --periodic {{periodic}} {{runFlags}} \
+  \$SRUN ./profile.sh \\
+      ../sys/bin/picongpu -d {{nx}} {{ny}} {{nz}} -g {{grid}} \\
+                         --periodic {{periodic}} {{runFlags}} \\
                           $DIRECT_FLAG -s 100 --percent 1 >profile.log
 
 fi

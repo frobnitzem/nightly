@@ -1,7 +1,7 @@
 # List of configuration options to build and run.
 
 # location of all output files
-work: "../../nightly_tests"
+work: "../../frontier_nightly"
 
 # configs specific to our build/run of picongpu:
 
@@ -66,14 +66,16 @@ machines:
      #- build: ["hipcc", "rocm/5.1.0", "cray-mpich/8.1.16", "TWEAC*run", "9b2867"]
      #  runs:
      #   - [2, 6, 4, "480 1632 896", "1 1 1", ""]
-      - build: ["hipcc", "rocm/5.2.0", "cray-mpich/8.1.16", "TWEAC*thms", "9b2867"]
+      - build: ["hipcc", "rocm/5.1.0", "cray-mpich/8.1.17", "TWEAC-FOM", ""]
         runs:
          - [2, 6, 4, "480 1632 896", "1 1 1", ""]
          - [2, 6, 4, "480 1632 896", "1 1 1", "--fieldBackground.duplicateFields"]
-      - build: ["hipcc #atomic", "rocm/5.2.0", "cray-mpich/8.1.16", "TWEAC*thms", "9b2867"]
+      - build: ["hipcc #1", "rocm/5.1.0", "cray-mpich/8.1.17", "TWEAC-FOM", ""]
         runs:
          - [2, 6, 4, "480 1632 896", "1 1 1", ""]
-         - [2, 6, 4, "480 1632 896", "1 1 1", "--fieldBackground.duplicateFields"]
+      - build: ["hipcc #2", "rocm/5.1.0", "cray-mpich/8.1.17", "TWEAC-FOM", ""]
+        runs:
+         - [2, 6, 4, "480 1632 896", "1 1 1", ""]
   frontier:
     repo: "../../picongpu"
     configs:
@@ -84,13 +86,18 @@ machines:
       - build: ["hipcc #1", "rocm/5.1.0", "cray-mpich/8.1.17", "TWEAC-FOM", ""]
         runs:
          - [2, 6, 4, "480 1632 896", "1 1 1", ""]
+      - build: ["hipcc #2", "rocm/5.1.0", "cray-mpich/8.1.17", "TWEAC-FOM", ""]
+        runs:
+         - [2, 6, 4, "480 1632 896", "1 1 1", ""]
          - [2, 12, 4, "480 3264 896", "1 1 1", ""]
          - [2, 32, 8, "480 8704 1792", "1 1 1", ""]
          - [4, 40, 8, "960 10880 1792", "1 1 1", ""]
          - [4, 64, 16, "960 17408 3584", "1 1 1", ""]
          - [8, 128, 24, "1920 34816 5376", "1 1 1", ""]
          - [8, 168, 50, "1920 45696 11200", "1 1 1", ""]
-      - build: ["hipcc #2", "rocm/5.1.0", "cray-mpich/8.1.17", "TWEAC-FOM", ""]
-        runs:
-         - [2, 6, 4, "480 1632 896", "1 1 1", ""]
-         - [2, 6, 4, "480 1632 896", "1 1 1", "--fieldBackground.duplicateFields"]
+         - [8, 160, 52, "1920 43520 11648", "1 1 1", ""]
+         - [8, 152, 56, "1920 41344 12544", "1 1 1", ""]
+         - [8, 136, 64, "1920 36992 14336", "1 1 1", ""]
+         - [12, 196, 32, "2880 53312 7168", "1 1 1", ""]
+         - [14, 224, 24, "3360 60928 5376", "1 1 1", ""]
+         - [8, 448, 21, "1920 121856 4704", "1 1 1", ""]

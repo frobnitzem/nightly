@@ -9,9 +9,9 @@ source env.sh
 mkdir -p build
 cd build
 
-cmake_flags=""
+cmake_flags="-Dalpaka_FAST_MATH=ON"
 {% if "atomic" in compiler %}
-cmake_flags="-c -DPMACC_HIP_EMULATE_SHAREDMEM_ATOMICADD_32BIT=OFF"
+cmake_flags="-Dalpaka_FAST_MATH=ON -DPMACC_HIP_EMULATE_SHAREDMEM_ATOMICADD_32BIT=OFF"
 export HIPCC_LINK_FLAGS_APPEND="$HIPCC_LINK_FLAGS_APPEND -munsafe-fp-atomics"
 {% endif %}
 
@@ -28,7 +28,7 @@ preset=`sed -e 's/.*#//' <<<'{{compiler}}'`
 {%- if "cuda" in accel %}
            -b cuda:70 \
 {% endif -%}
-           $cmake_flags \
+           -c "$cmake_flags" \
            -i "$CWD/sys" \
            ../sys
 
