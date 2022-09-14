@@ -32,7 +32,7 @@ cat >batch.sh <<.
 #!/bin/bash
 #SBATCH --time=00:45:00
 #SBATCH --job-name={{ problem }}
-#SBATCH --nodes={{nnodes if nnodes < 3000 and nnodes+2 <= 9408 else nnodes+2}}
+#SBATCH --nodes={{ nnodes }}
 #SBATCH --ntasks={{ nprocs }}
 #SBATCH --cpus-per-task=7
 #SBATCH --gres=gpu:8
@@ -46,17 +46,7 @@ echo "Started job on \$SLURM_JOB_NODELIST"
 SRUN="srun -n {{ nprocs }} -N {{ nnodes }} -c7 --ntasks-per-node 8 --gpus-per-task 1 --gpu-bind closest"
 #\$SRUN /bin/bash -c 'echo \$(hostname) \$(grep Cpus_allowed_list /proc/self/status) GPUS: \$ROCR_VISIBLE_DEVICES' | sort -n >affinity.txt
 
-if [ -x ../sys/bin/cuda_memtest.sh ]; then
-  \$SRUN -K1 --gpu-bind=none ../sys/bin/cuda_memtest.sh
-fi
-
-# conditionally create node-exclusion list
-ls -1 | sed -n -e 's/cuda_memtest_\\([^_]*\\)_.*/\\1/p' | sort -u >bad_nodes.txt
-excl=""
-test -s bad_nodes.txt && excl="-x./bad_nodes.txt"
-
-\$SRUN \$excl \
-       ../sys/bin/picongpu -d {{nx}} {{ny}} {{nz}} -g {{grid}} \\
+\$SRUN ../sys/bin/picongpu -d {{nx}} {{ny}} {{nz}} -g {{grid}} \\
                          --periodic {{periodic}} {{runFlags}} \\
                          $DIRECT_FLAG -s 1000 --percent 1 \\
                          --versionOnce --e_macroParticlesCount.period 50
